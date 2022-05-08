@@ -3,7 +3,7 @@
 #include <sol/sol.hpp>
 #include <RmlUi/Core.h>
 
-#include "src/plugin/SolLuaPlugin.h"
+#include "plugin/SolLuaPlugin.h"
 
 
 namespace Rml::SolLua

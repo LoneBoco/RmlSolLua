@@ -2,7 +2,7 @@
 
 #include "SolLuaInstancer.h"
 
-#include "src/bind/bind.h"
+#include "bind/bind.h"
 
 
 

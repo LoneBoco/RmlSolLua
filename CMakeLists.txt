@@ -35,13 +35,10 @@ target_sources (RmlSolLua
 
 target_include_directories (RmlSolLua
 	PRIVATE
-		${CMAKE_CURRENT_SOURCE_DIR}
-		"H:/Projects/CPP/2drp/dependencies/RmlUi/Include/"
-		"H:/Projects/CPP/2drp/dependencies/sol2/include/"
-		"H:/Projects/CPP/2drp/dependencies/luajit-2.0/src/"
+		${PROJECT_SOURCE_DIR}src/
 
 	PUBLIC
-		${CMAKE_CURRENT_SOURCE_DIR}
+		${PROJECT_SOURCE_DIR}src/
 )
 
 

@@ -1,6 +1,6 @@
 #include "SolLuaEventListener.h"
 
-#include "src/plugin/SolLuaDocument.h"
+#include "plugin/SolLuaDocument.h"
 
 #include <RmlUi/Core/Element.h>
 #include <string>

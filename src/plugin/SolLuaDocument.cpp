@@ -1,8 +1,6 @@
 #include "SolLuaDocument.h"
 
 #include <RmlUi/Core/Stream.h>
-//#include <RmlUi/Lua/IncludeLua.h>
-//#include <RmlUi/Lua/Interpreter.h>
 
 
 namespace Rml::SolLua
