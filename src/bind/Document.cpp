@@ -24,8 +24,9 @@ namespace Rml::SolLua
 			// G
 			"context", sol::readonly_property(&SolLuaDocument::GetContext),
 
+			// B
 			sol::base_classes, sol::bases<Rml::Element>()
-			);
+		);
 	}
 
 } // end namespace Rml::SolLua

@@ -3,6 +3,8 @@
 #include <RmlUi/Core.h>
 #include <sol/sol.hpp>
 
+#include <type_traits>
+
 
 #ifndef RMLUI_NO_THIRDPARTY_CONTAINERS
 template <typename Key, typename Value>
@@ -28,11 +30,147 @@ struct sol::is_container<Rml::ElementList> : std::true_type {};
 namespace Rml::SolLua
 {
 
+	sol::object makeObjectFromVariant(const Rml::Variant* variant, sol::this_state s);
+	using SolObjectMap = std::unordered_map<std::string, sol::object>;
+
+} // end namespace Rml::SolLua
+
+
+namespace Rml::SolLua
+{
+
+	/// <summary>
+	/// Constructs an iterator that can be used with sol::as_table() to return an integer indexed table.
+	/// </summary>
+	/// <typeparam name="T">The type of Rml::Element we are using for iteration.</typeparam>
+	template <typename T = Rml::Element, typename S = Rml::Element>
+	struct TableIndexedIterator
+	{
+		struct Iter
+		{
+			using iterator_category = std::forward_iterator_tag;
+			using difference_type = std::ptrdiff_t;
+			using value_type = T*;
+			using pointer = T**;
+			using reference = T*&;
+
+			Iter(const TableIndexedIterator<T, S>* owner, int pos)
+				: m_owner{ owner }, m_pos{ pos }
+			{}
+
+			auto operator++() const
+			{
+				m_pos = std::min(++m_pos, m_owner->m_func_max());
+				return *this;
+			}
+
+			auto operator++(int) const
+			{
+				auto cur_pos = m_pos;
+				m_pos = std::min(++m_pos, m_owner->m_func_max());
+				return *this;
+			}
+
+			auto operator==(const Iter& other) const
+			{
+				auto max = m_owner->m_func_max();
+				auto my_pos = std::min(m_pos, max);
+				auto other_pos = std::min(other.m_pos, max);
+				return my_pos == other_pos;
+			}
+
+			auto operator*() const
+			{
+				return m_owner->m_func_get(m_pos);
+			}
+
+		private:
+			const TableIndexedIterator<T, S>* m_owner;
+			mutable int m_pos = 0;
+		};
+
+		/// <summary>
+		/// Constructs the iterator.
+		/// </summary>
+		/// <param name="element">The element we are pulling data from.</param>
+		/// <param name="get">The function of the element to get new data (ex: Rml::Element::GetChild)</param>
+		/// <param name="max">The function of the element to get the max number of items (ex: Rml::Element::GetNumChildren)</param>
+		TableIndexedIterator(S* element, std::function<T* (int)> get, std::function<int()> max)
+			: m_element{ element }, m_func_get{ get }, m_func_max{ max }
+		{
+			assert((m_func_get) && (m_func_max));
+		}
+
+		Iter begin() const
+		{
+			Iter it(this, 0);
+			return it;
+		}
+
+		Iter end() const
+		{
+			Iter it(this, m_func_max());
+			return it;
+		}
+
+		int size() const
+		{
+			return m_func_max();
+		}
+
+		friend Iter;
+
+	private:
+		S* m_element;
+		std::function<T* (int)> m_func_get;
+		std::function<int ()> m_func_max;
+	};
+
+	template <typename T, typename S, auto G, auto M>
+	sol::as_table_t<TableIndexedIterator<T, S>> getIndexedTable(S& self)
+	{
+		std::function<T* (int)> get;
+		if constexpr (std::is_member_function_pointer_v<decltype(G)>)
+		{
+			get = std::bind(G, &self, std::placeholders::_1);
+		}
+		else
+		{
+			auto f = std::invoke(G, self);
+			get = f;
+		}
+		
+		std::function<int()> max;
+		if constexpr (std::is_member_function_pointer_v<decltype(M)>)
+		{
+			max = std::bind(M, &self);
+		}
+		else
+		{
+			auto f = std::invoke(M, self);
+			max = f;
+		}
+
+		TableIndexedIterator<T, S> result{ &self, get, max };
+		return sol::as_table(result);
+	}
+
+} // end namespace Rml::SolLua
+
+
+namespace Rml::SolLua
+{
+
 	void bind_color(sol::state_view& lua);
 	void bind_context(sol::state_view& lua);
-	void bind_element(sol::state_view& lua);
 	void bind_document(sol::state_view& lua);
+	void bind_element(sol::state_view& lua);
+	void bind_element_derived(sol::state_view& lua);
+	void bind_element_form(sol::state_view& lua);
 	void bind_event(sol::state_view& lua);
+	void bind_global(sol::state_view& lua);
+	void bind_log(sol::state_view& lua);
 	void bind_vector(sol::state_view& lua);
+	void bind_convert(sol::state_view& lua);
 
 } // end namespace Rml::SolLua

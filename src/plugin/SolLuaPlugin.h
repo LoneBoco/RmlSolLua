@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include "../RmlSolLua.h"
+#include "RmlSolLua/RmlSolLua.h"
 
 #include <RmlUi/Lua/Header.h>
 #include <RmlUi/Core/Plugin.h>

@@ -12,8 +12,22 @@ add_library (RmlSolLua STATIC)
 
 target_sources (RmlSolLua
 	PRIVATE
-		"src/RmlSolLua.h"
+		"include/RmlSolLua/RmlSolLua.h"
 		"src/RmlSolLua.cpp"
+		"src/RmlSolLua.h"
+		"src/bind/bind.cpp"
+		"src/bind/bind.h"
+		"src/bind/Colour.cpp"
+		"src/bind/Context.cpp"
+		"src/bind/Convert.cpp"
+		"src/bind/Document.cpp"
+		"src/bind/Element.cpp"
+		"src/bind/ElementDerived.cpp"
+		"src/bind/ElementForm.cpp"
+		"src/bind/Event.cpp"
+		"src/bind/Global.cpp"
+		"src/bind/Log.cpp"
+		"src/bind/Vector.cpp"
 		"src/plugin/SolLuaDocument.cpp"
 		"src/plugin/SolLuaDocument.h"
 		"src/plugin/SolLuaEventListener.cpp"
@@ -22,23 +36,17 @@ target_sources (RmlSolLua
 		"src/plugin/SolLuaInstancer.h"
 		"src/plugin/SolLuaPlugin.cpp"
 		"src/plugin/SolLuaPlugin.h"
-		"src/bind/bind.h"
-		"src/bind/Colour.cpp"
-		"src/bind/Context.cpp"
-		"src/bind/Document.cpp"
-		"src/bind/Element.cpp"
-		"src/bind/Event.cpp"
-		"src/bind/Vector.cpp"
 	PUBLIC
-		"src/RmlSolLua.h"
+		"include/RmlSolLua/RmlSolLua.h"
 )
 
 target_include_directories (RmlSolLua
 	PRIVATE
 		${PROJECT_SOURCE_DIR}src/
+		${PROJECT_SOURCE_DIR}include/
 
 	PUBLIC
-		${PROJECT_SOURCE_DIR}src/
+		${PROJECT_SOURCE_DIR}include/
 )
 
 

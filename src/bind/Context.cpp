@@ -6,17 +6,14 @@
 namespace Rml::SolLua
 {
 
-	std::shared_ptr<Rml::ElementList> getDocuments(Rml::Context& self, sol::this_state s)
+	namespace document
 	{
-		auto result = std::make_shared<Rml::ElementList>();
-
-		for (int i = 0; i < self.GetNumDocuments(); ++i)
+		auto getDocument(Rml::Context& self)
 		{
-			auto child = self.GetDocument(i);
-			result->push_back(child);
+			auto resolved = static_cast<Rml::ElementDocument* (Rml::Context::*)(int)>(&Rml::Context::GetDocument);
+			std::function<Rml::ElementDocument* (int)> result = std::bind(resolved, &self, std::placeholders::_1);
+			return result;
 		}
-
-		return result;
 	}
 
 	void bind_context(sol::state_view& lua)
@@ -35,12 +32,12 @@ namespace Rml::SolLua
 			"dimensions", sol::property(&Rml::Context::GetDimensions, &Rml::Context::SetDimensions),
 
 			// G
-			"documents", sol::readonly_property(&getDocuments),
+			"documents", sol::readonly_property(&getIndexedTable<Rml::ElementDocument, Rml::Context, &document::getDocument, &Rml::Context::GetNumDocuments>),
 			"focus_element", sol::readonly_property(&Rml::Context::GetFocusElement),
 			"hover_element", sol::readonly_property(&Rml::Context::GetHoverElement),
 			"name", sol::readonly_property(&Rml::Context::GetName),
 			"root_element", sol::readonly_property(&Rml::Context::GetRootElement)
-			);
+		);
 	}
 
 } // end namespace Rml::SolLua

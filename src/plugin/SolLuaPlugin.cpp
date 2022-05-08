@@ -12,6 +12,15 @@ namespace Rml::SolLua
 	SolLuaPlugin::SolLuaPlugin(sol::state_view lua_state)
 		: m_lua_state{ lua_state }
 	{
+		bind_color(lua_state);
+		bind_context(lua_state);
+		bind_element(lua_state);
+		bind_document(lua_state);
+		bind_event(lua_state);
+		bind_global(lua_state);
+		bind_log(lua_state);
+		bind_vector(lua_state);
+		bind_convert(lua_state);
 	}
 
 	int SolLuaPlugin::GetEventClasses()

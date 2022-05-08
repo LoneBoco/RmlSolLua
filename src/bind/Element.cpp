@@ -30,45 +30,7 @@ namespace Rml::SolLua
 			self.AddEventListener(event, e, in_capture_phase);
 		}
 
-		sol::object makeObjectFromVariant(Rml::Variant* variant, sol::this_state s)
-		{
-			if (!variant) return sol::make_object(s, sol::nil);
-
-			switch (variant->GetType())
-			{
-			case Rml::Variant::BOOL:
-				return sol::make_object(s, variant->Get<bool>());
-			case Rml::Variant::BYTE:
-			case Rml::Variant::CHAR:
-			case Rml::Variant::INT:
-				return sol::make_object(s, variant->Get<int>());
-			case Rml::Variant::INT64:
-				return sol::make_object(s, variant->Get<int64_t>());
-			case Rml::Variant::UINT:
-				return sol::make_object(s, variant->Get<unsigned int>());
-			case Rml::Variant::UINT64:
-				return sol::make_object(s, variant->Get<uint64_t>());
-			case Rml::Variant::FLOAT:
-			case Rml::Variant::DOUBLE:
-				return sol::make_object(s, variant->Get<double>());
-			case Rml::Variant::COLOURB:
-				return sol::make_object_userdata<Rml::Colourb>(s, variant->Get<Rml::Colourb>());
-			case Rml::Variant::COLOURF:
-				return sol::make_object_userdata<Rml::Colourf>(s, variant->Get<Rml::Colourf>());
-			case Rml::Variant::STRING:
-				return sol::make_object(s, variant->GetReference<Rml::String>());
-			case Rml::Variant::VECTOR2:
-				return sol::make_object_userdata<Rml::Vector2f>(s, variant->Get<Rml::Vector2f>());
-			case Rml::Variant::VOIDPTR:
-				return sol::make_object(s, variant->Get<void*>());
-			default:
-				return sol::make_object(s, sol::nil);
-			}
-
-			return sol::make_object(s, sol::nil);
-		}
-
-		sol::object getAttribute(Rml::Element& self, const Rml::String& name, sol::this_state s)
+		auto getAttribute(Rml::Element& self, const Rml::String& name, sol::this_state s)
 		{
 			sol::state_view state{ s };
 
@@ -76,38 +38,33 @@ namespace Rml::SolLua
 			return makeObjectFromVariant(attr, s);
 		}
 
-		std::shared_ptr<Rml::ElementList> getElementsByTagName(Rml::Element& self, const Rml::String& tag)
+		auto getElementsByTagName(Rml::Element& self, const Rml::String& tag)
 		{
-			auto result = std::make_shared<Rml::ElementList>();
-			self.GetElementsByTagName(*result, tag);
+			Rml::ElementList result;
+			self.GetElementsByTagName(result, tag);
 			return result;
 		}
 
-		using SolObjectMap = std::unordered_map<std::string, sol::object>;
-		std::shared_ptr<SolObjectMap> getAttributes(Rml::Element& self, sol::this_state s)
+		auto getAttributes(Rml::Element& self, sol::this_state s)
 		{
-			auto result = std::make_shared<SolObjectMap>();
+			SolObjectMap result;
 
 			auto attributes = self.GetAttributes();
 			for (auto& [key, value] : attributes)
 			{
 				auto object = makeObjectFromVariant(&value, s);
-				result->insert(std::make_pair(key, object));
+				result.insert(std::make_pair(key, object));
 			}
 
 			return result;
 		}
+	}
 
-		Rml::ElementList getChildNodes(Rml::Element& self, sol::this_state s)
+	namespace child
+	{
+		auto getMaxChildren(Rml::Element& self)
 		{
-			Rml::ElementList result;
-
-			for (int i = 0; i < self.GetNumChildren(); ++i)
-			{
-				auto child = self.GetChild(i);
-				result.push_back(child);
-			}
-
+			std::function<int()> result = std::bind(&Rml::Element::GetNumChildren, &self, false);
 			return result;
 		}
 	}
@@ -160,8 +117,7 @@ namespace Rml::SolLua
 
 		auto getElementStyleProxy(Rml::Element& self)
 		{
-			StyleProxy proxy{ self };
-			return proxy;
+			return StyleProxy{ self };
 		}
 	}
 
@@ -172,13 +128,15 @@ namespace Rml::SolLua
 			"OnAttach", &Rml::EventListener::OnAttach,
 			"OnDetach", &Rml::EventListener::OnDetach,
 			"ProcessEvent", &Rml::EventListener::ProcessEvent
-			);
+		);
+
+		///////////////////////////
 
 		lua.new_usertype<style::StyleProxy>("StyleProxy", sol::no_constructor,
 			sol::meta_function::index, &style::StyleProxy::Get,
 			sol::meta_function::new_index, &style::StyleProxy::Set,
 			sol::meta_function::pairs, &style::StyleProxy::Pairs
-			);
+		);
 
 		lua.new_usertype<Rml::Element>("Element", sol::no_constructor,
 			// M
@@ -216,7 +174,7 @@ namespace Rml::SolLua
 
 			// G
 			"attributes", sol::readonly_property(&functions::getAttributes),
-			"child_nodes", sol::readonly_property(&functions::getChildNodes),
+			"child_nodes", sol::readonly_property(&getIndexedTable<Rml::Element, Rml::Element, &Rml::Element::GetChild, &child::getMaxChildren>),
 			"client_left", sol::readonly_property(&Rml::Element::GetClientLeft),
 			"client_height", sol::readonly_property(&Rml::Element::GetClientHeight),
 			"client_top", sol::readonly_property(&Rml::Element::GetClientTop),
@@ -236,7 +194,8 @@ namespace Rml::SolLua
 			"scroll_width", sol::readonly_property(&Rml::Element::GetScrollWidth),
 			"style", sol::readonly_property(&style::getElementStyleProxy),
 			"tag_name", sol::readonly_property(&Rml::Element::GetTagName)
-			);
+		);
+
 	}
 
 } // end namespace Rml::SolLua

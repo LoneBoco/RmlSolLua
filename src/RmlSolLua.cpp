@@ -1,4 +1,4 @@
-﻿#include "RmlSolLua.h"
+﻿#include "RmlSolLua/RmlSolLua.h"
 
 #include <sol/sol.hpp>
 #include <RmlUi/Core.h>
@@ -15,14 +15,12 @@ namespace Rml::SolLua
         if (state != nullptr)
         {
             ::Rml::RegisterPlugin(new SolLuaPlugin(*state));
-            
-            bind_color(*state);
-            bind_context(*state);
-            bind_document(*state);
-            bind_element(*state);
-            bind_event(*state);
-            bind_vector(*state);
         }
+    }
+
+    void Initialize(sol::state_view* state)
+    {
+        Initialise(state);
     }
 
 } // end namespace Rml::SolLua

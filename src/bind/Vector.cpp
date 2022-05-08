@@ -26,7 +26,7 @@ namespace Rml::SolLua
 
 			// G
 			"magnitude", &Rml::Vector2i::Magnitude
-			);
+		);
 
 		lua.new_usertype<Rml::Vector2f>("Vector2f", sol::constructors<Rml::Vector2f(), Rml::Vector2f(float, float)>(),
 			// O
@@ -48,7 +48,7 @@ namespace Rml::SolLua
 
 			// G
 			"magnitude", &Rml::Vector2f::Magnitude
-			);
+		);
 	}
 
 } // end namespace Rml::SolLua

@@ -29,8 +29,6 @@ project "RmlSolLua"
 	targetdir "out"
 	debugdir "out"
 
-	rtti "On"
-
 	-- Add files.
 	files { "src/**" }
 	includedirs { "src" }

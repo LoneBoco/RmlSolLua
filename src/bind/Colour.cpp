@@ -35,7 +35,7 @@ namespace Rml::SolLua
 			"blue", &Rml::Colourb::blue,
 			"alpha", &Rml::Colourb::alpha,
 			"rgba", sol::property(static_cast<ColourbTuple(*)(Rml::Colourb&)>(&getRGBA), static_cast<void(*)(Rml::Colourb&, ColourbTuple)>(&setRGBA))
-			);
+		);
 
 		lua.new_usertype<Rml::Colourf>("Colourf", sol::constructors<Rml::Colourf(), Rml::Colourf(float, float, float), Rml::Colourf(float, float, float, float)>(),
 			// O
@@ -51,7 +51,7 @@ namespace Rml::SolLua
 			"blue", &Rml::Colourf::blue,
 			"alpha", &Rml::Colourf::alpha,
 			"rgba", sol::property(static_cast<ColourfTuple(*)(Rml::Colourf&)>(&getRGBA), static_cast<void(*)(Rml::Colourf&, ColourfTuple)>(&setRGBA))
-			);
+		);
 	}
 
 } // end namespace Rml::SolLua

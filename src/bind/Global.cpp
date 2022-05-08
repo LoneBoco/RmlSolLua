@@ -1,0 +1,227 @@
+#include "bind.h"
+
+
+namespace Rml::SolLua
+{
+
+	namespace functions
+	{
+		Rml::Vector<Rml::Context*> getContexts()
+		{
+			Rml::Vector<Rml::Context*> result;
+
+			for (int i = 0; i < Rml::GetNumContexts(); ++i)
+			{
+				auto context = Rml::GetContext(i);
+				result.push_back(context);
+			}
+
+			return result;
+		}
+	}
+
+
+	void bind_global(sol::state_view& lua)
+	{
+		#define _ENUM(N) lua["RmlKeyIdentifier"][#N] = Rml::Input::KI_##N
+
+		// We can't make this into an enum.
+		// The compiler can't handle everything under one call.
+		//lua.new_enum("RmlKeyIdentifier");
+		lua.create_named_table("RmlKeyIdentifier");
+		_ENUM(UNKNOWN);
+		_ENUM(UNKNOWN);
+		_ENUM(SPACE);
+		_ENUM(0);
+		_ENUM(1);
+		_ENUM(2);
+		_ENUM(3);
+		_ENUM(4);
+		_ENUM(5);
+		_ENUM(6);
+		_ENUM(7);
+		_ENUM(8);
+		_ENUM(9);
+		_ENUM(A);
+		_ENUM(B);
+		_ENUM(C);
+		_ENUM(D);
+		_ENUM(E);
+		_ENUM(F);
+		_ENUM(G);
+		_ENUM(H);
+		_ENUM(I);
+		_ENUM(J);
+		_ENUM(K);
+		_ENUM(L);
+		_ENUM(M);
+		_ENUM(N);
+		_ENUM(O);
+		_ENUM(P);
+		_ENUM(Q);
+		_ENUM(R);
+		_ENUM(S);
+		_ENUM(T);
+		_ENUM(U);
+		_ENUM(V);
+		_ENUM(W);
+		_ENUM(X);
+		_ENUM(Y);
+		_ENUM(Z);
+		_ENUM(OEM_1);
+		_ENUM(OEM_PLUS);
+		_ENUM(OEM_COMMA);
+		_ENUM(OEM_MINUS);
+		_ENUM(OEM_PERIOD);
+		_ENUM(OEM_2);
+		_ENUM(OEM_3);
+		_ENUM(OEM_4);
+		_ENUM(OEM_5);
+		_ENUM(OEM_6);
+		_ENUM(OEM_7);
+		_ENUM(OEM_8);
+		_ENUM(OEM_102);
+		_ENUM(NUMPAD0);
+		_ENUM(NUMPAD1);
+		_ENUM(NUMPAD2);
+		_ENUM(NUMPAD3);
+		_ENUM(NUMPAD4);
+		_ENUM(NUMPAD5);
+		_ENUM(NUMPAD6);
+		_ENUM(NUMPAD7);
+		_ENUM(NUMPAD8);
+		_ENUM(NUMPAD9);
+		_ENUM(NUMPADENTER);
+		_ENUM(MULTIPLY);
+		_ENUM(ADD);
+		_ENUM(SEPARATOR);
+		_ENUM(SUBTRACT);
+		_ENUM(DECIMAL);
+		_ENUM(DIVIDE);
+		_ENUM(OEM_NEC_EQUAL);
+		_ENUM(BACK);
+		_ENUM(TAB);
+		_ENUM(CLEAR);
+		_ENUM(RETURN);
+		_ENUM(PAUSE);
+		_ENUM(CAPITAL);
+		_ENUM(KANA);
+		_ENUM(HANGUL);
+		_ENUM(JUNJA);
+		_ENUM(FINAL);
+		_ENUM(HANJA);
+		_ENUM(KANJI);
+		_ENUM(ESCAPE);
+		_ENUM(CONVERT);
+		_ENUM(NONCONVERT);
+		_ENUM(ACCEPT);
+		_ENUM(MODECHANGE);
+		_ENUM(PRIOR);
+		_ENUM(NEXT);
+		_ENUM(END);
+		_ENUM(HOME);
+		_ENUM(LEFT);
+		_ENUM(UP);
+		_ENUM(RIGHT);
+		_ENUM(DOWN);
+		_ENUM(SELECT);
+		_ENUM(PRINT);
+		_ENUM(EXECUTE);
+		_ENUM(SNAPSHOT);
+		_ENUM(INSERT);
+		_ENUM(DELETE);
+		_ENUM(HELP);
+		_ENUM(LWIN);
+		_ENUM(RWIN);
+		_ENUM(APPS);
+		_ENUM(POWER);
+		_ENUM(SLEEP);
+		_ENUM(WAKE);
+		_ENUM(F1);
+		_ENUM(F2);
+		_ENUM(F3);
+		_ENUM(F4);
+		_ENUM(F5);
+		_ENUM(F6);
+		_ENUM(F7);
+		_ENUM(F8);
+		_ENUM(F9);
+		_ENUM(F10);
+		_ENUM(F11);
+		_ENUM(F12);
+		_ENUM(F13);
+		_ENUM(F14);
+		_ENUM(F15);
+		_ENUM(F16);
+		_ENUM(F17);
+		_ENUM(F18);
+		_ENUM(F19);
+		_ENUM(F20);
+		_ENUM(F21);
+		_ENUM(F22);
+		_ENUM(F23);
+		_ENUM(F24);
+		_ENUM(NUMLOCK);
+		_ENUM(SCROLL);
+		_ENUM(OEM_FJ_JISHO);
+		_ENUM(OEM_FJ_MASSHOU);
+		_ENUM(OEM_FJ_TOUROKU);
+		_ENUM(OEM_FJ_LOYA);
+		_ENUM(OEM_FJ_ROYA);
+		_ENUM(LSHIFT);
+		_ENUM(RSHIFT);
+		_ENUM(LCONTROL);
+		_ENUM(RCONTROL);
+		_ENUM(LMENU);
+		_ENUM(RMENU);
+		_ENUM(BROWSER_BACK);
+		_ENUM(BROWSER_FORWARD);
+		_ENUM(BROWSER_REFRESH);
+		_ENUM(BROWSER_STOP);
+		_ENUM(BROWSER_SEARCH);
+		_ENUM(BROWSER_FAVORITES);
+		_ENUM(BROWSER_HOME);
+		_ENUM(VOLUME_MUTE);
+		_ENUM(VOLUME_DOWN);
+		_ENUM(VOLUME_UP);
+		_ENUM(MEDIA_NEXT_TRACK);
+		_ENUM(MEDIA_PREV_TRACK);
+		_ENUM(MEDIA_STOP);
+		_ENUM(MEDIA_PLAY_PAUSE);
+		_ENUM(LAUNCH_MAIL);
+		_ENUM(LAUNCH_MEDIA_SELECT);
+		_ENUM(LAUNCH_APP1);
+		_ENUM(LAUNCH_APP2);
+		_ENUM(OEM_AX);
+		_ENUM(ICO_HELP);
+		_ENUM(ICO_00);
+		_ENUM(PROCESSKEY);
+		_ENUM(ICO_CLEAR);
+		_ENUM(ATTN);
+		_ENUM(CRSEL);
+		_ENUM(EXSEL);
+		_ENUM(EREOF);
+		_ENUM(PLAY);
+		_ENUM(ZOOM);
+		_ENUM(PA1);
+		_ENUM(OEM_CLEAR);
+
+		lua.new_enum("RmlKeyModifier",
+			"CTRL", Rml::Input::KM_CTRL,
+			"SHIFT", Rml::Input::KM_SHIFT,
+			"ALT", Rml::Input::KM_ALT,
+			"META", Rml::Input::KM_META,
+			"CAPSLOCK", Rml::Input::KM_CAPSLOCK,
+			"NUMLOCK", Rml::Input::KM_NUMLOCK,
+			"SCROLLLOCK", Rml::Input::KM_SCROLLLOCK
+		);
+
+		auto rmlui = lua.create_named_table("rmlui");
+		rmlui.set_function("CreateContext", &Rml::CreateContext);
+		rmlui.set_function("LoadFontFace", sol::resolve<bool(const Rml::String&, bool)>(&Rml::LoadFontFace));
+		rmlui["contexts"] = sol::readonly_property(&functions::getContexts);
+		rmlui["key_identifier"] = lua["RmlKeyIdentifier"];
+		rmlui["key_modifier"] = lua["RmlKeyModifier"];
+	}
+
+} // end namespace Rml::SolLua
