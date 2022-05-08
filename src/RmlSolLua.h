@@ -23,7 +23,7 @@
 
 namespace sol
 {
-    struct state_view;
+    class state_view;
 }
 
 namespace Rml::SolLua
