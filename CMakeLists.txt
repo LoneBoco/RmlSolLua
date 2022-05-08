@@ -12,14 +12,16 @@ add_library (RmlSolLua STATIC)
 
 target_sources (RmlSolLua
 	PRIVATE
-		"src/RmlSolLua.cpp"
 		"src/RmlSolLua.h"
+		"src/RmlSolLua.cpp"
 		"src/plugin/SolLuaDocument.cpp"
 		"src/plugin/SolLuaDocument.h"
 		"src/plugin/SolLuaEventListener.cpp"
 		"src/plugin/SolLuaEventListener.h"
 		"src/plugin/SolLuaInstancer.cpp"
 		"src/plugin/SolLuaInstancer.h"
+		"src/plugin/SolLuaPlugin.cpp"
+		"src/plugin/SolLuaPlugin.h"
 		"src/bind/bind.h"
 		"src/bind/Colour.cpp"
 		"src/bind/Context.cpp"
