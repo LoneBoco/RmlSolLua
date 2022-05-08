@@ -4,7 +4,7 @@
 namespace Rml::SolLua
 {
 
-	void bind_vector(sol::state& lua)
+	void bind_vector(sol::state_view& lua)
 	{
 		lua.new_usertype<Rml::Vector2i>("Vector2i", sol::constructors<Rml::Vector2i(), Rml::Vector2i(int, int)>(),
 			// O

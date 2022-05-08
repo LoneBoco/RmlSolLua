@@ -4,7 +4,7 @@
 namespace Rml::SolLua
 {
 
-	void bind_event(sol::state& lua)
+	void bind_event(sol::state_view& lua)
 	{
 		lua.new_usertype<Rml::Event>("Event", sol::no_constructor,
 			// M

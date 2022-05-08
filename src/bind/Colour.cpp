@@ -19,7 +19,7 @@ namespace Rml::SolLua
 		sol::tie(self.red, self.green, self.blue, self.alpha) = color;
 	}
 
-	void bind_color(sol::state& lua)
+	void bind_color(sol::state_view& lua)
 	{
 		lua.new_usertype<Rml::Colourb>("Colourb", sol::constructors<Rml::Colourb(), Rml::Colourb(Rml::byte, Rml::byte, Rml::byte), Rml::Colourb(Rml::byte, Rml::byte, Rml::byte, Rml::byte)>(),
 			// O

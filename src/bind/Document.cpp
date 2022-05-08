@@ -6,7 +6,7 @@
 namespace Rml::SolLua
 {
 
-	void bind_document(sol::state& lua)
+	void bind_document(sol::state_view& lua)
 	{
 		lua.new_usertype<SolLuaDocument>("Document", sol::no_constructor,
 			// M
@@ -22,7 +22,9 @@ namespace Rml::SolLua
 			"title", sol::property(&SolLuaDocument::GetTitle, &SolLuaDocument::SetTitle),
 
 			// G
-			"context", sol::readonly_property(&SolLuaDocument::GetContext)
+			"context", sol::readonly_property(&SolLuaDocument::GetContext),
+
+			sol::base_classes, sol::bases<Rml::Element>()
 			);
 	}
 

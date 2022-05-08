@@ -19,7 +19,7 @@ namespace Rml::SolLua
 		return result;
 	}
 
-	void bind_context(sol::state& lua)
+	void bind_context(sol::state_view& lua)
 	{
 		lua.new_usertype<Rml::Context>("Context", sol::no_constructor,
 			// M

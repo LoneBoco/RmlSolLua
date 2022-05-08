@@ -19,17 +19,20 @@ struct sol::is_container<Rml::SmallUnorderedSet<T>> : std::true_type {};
 
 //template <typename T>
 //struct sol::is_container<Rml::SmallOrderedSet<T>> : std::true_type {};
+
+template <>
+struct sol::is_container<Rml::ElementList> : std::true_type {};
 #endif
 
 
 namespace Rml::SolLua
 {
 
-	void bind_color(sol::state& lua);
-	void bind_context(sol::state& lua);
-	void bind_document(sol::state& lua);
-	void bind_element(sol::state& lua);
-	void bind_event(sol::state& lua);
-	void bind_vector(sol::state& lua);
+	void bind_color(sol::state_view& lua);
+	void bind_context(sol::state_view& lua);
+	void bind_element(sol::state_view& lua);
+	void bind_document(sol::state_view& lua);
+	void bind_event(sol::state_view& lua);
+	void bind_vector(sol::state_view& lua);
 
 } // end namespace Rml::SolLua

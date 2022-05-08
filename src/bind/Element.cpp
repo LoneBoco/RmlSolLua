@@ -98,14 +98,14 @@ namespace Rml::SolLua
 			return result;
 		}
 
-		std::shared_ptr<Rml::ElementList> getChildNodes(Rml::Element& self, sol::this_state s)
+		Rml::ElementList getChildNodes(Rml::Element& self, sol::this_state s)
 		{
-			auto result = std::make_shared<Rml::ElementList>();
+			Rml::ElementList result;
 
 			for (int i = 0; i < self.GetNumChildren(); ++i)
 			{
 				auto child = self.GetChild(i);
-				result->push_back(child);
+				result.push_back(child);
 			}
 
 			return result;
@@ -165,7 +165,7 @@ namespace Rml::SolLua
 		}
 	}
 
-	void bind_element(sol::state& lua)
+	void bind_element(sol::state_view& lua)
 	{
 		lua.new_usertype<Rml::EventListener>("EventListener", sol::no_constructor,
 			// M

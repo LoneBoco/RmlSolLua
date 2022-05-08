@@ -14,6 +14,7 @@ namespace Rml::SolLua
 
 	void SolLuaDocumentElementInstancer::ReleaseElement(Element* element)
 	{
+		delete element;
 	}
 
 
