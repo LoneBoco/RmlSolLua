@@ -21,6 +21,15 @@ namespace Rml::SolLua
 		}
 
 		/// <summary>
+		/// Return a SolLuaDocument.
+		/// </summary>
+		auto getDocumentBypassString(Rml::Context& self, const Rml::String& name)
+		{
+			auto document = self.GetDocument(name);
+			return dynamic_cast<SolLuaDocument*>(document);
+		}
+
+		/// <summary>
 		/// Helper function to fill the indexed table with data.
 		/// </summary>
 		auto getDocument(Rml::Context& self)
@@ -40,6 +49,7 @@ namespace Rml::SolLua
 				auto doc = self.LoadDocument(document);
 				return dynamic_cast<SolLuaDocument*>(doc);
 			},
+			"GetDocument", &document::getDocumentBypassString,
 			"Render", &Rml::Context::Render,
 			"UnloadAllDocuments", &Rml::Context::UnloadAllDocuments,
 			"UnloadDocument", &Rml::Context::UnloadDocument,

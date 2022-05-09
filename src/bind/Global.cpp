@@ -6,16 +6,15 @@ namespace Rml::SolLua
 
 	namespace functions
 	{
-		Rml::Vector<Rml::Context*> getContexts()
+		auto getContext()
 		{
-			Rml::Vector<Rml::Context*> result;
+			std::function<Rml::Context* (int)> result = [](int idx) { return Rml::GetContext(idx); };
+			return result;
+		}
 
-			for (int i = 0; i < Rml::GetNumContexts(); ++i)
-			{
-				auto context = Rml::GetContext(i);
-				result.push_back(context);
-			}
-
+		auto getMaxContexts()
+		{
+			std::function<int ()> result = []() { return Rml::GetNumContexts(); };
 			return result;
 		}
 	}
@@ -216,12 +215,20 @@ namespace Rml::SolLua
 			"SCROLLLOCK", Rml::Input::KM_SCROLLLOCK
 		);
 
-		auto rmlui = lua.create_named_table("rmlui");
-		rmlui.set_function("CreateContext", &Rml::CreateContext);
-		rmlui.set_function("LoadFontFace", sol::resolve<bool(const Rml::String&, bool)>(&Rml::LoadFontFace));
-		rmlui["contexts"] = sol::readonly_property(&functions::getContexts);
-		rmlui["key_identifier"] = lua["RmlKeyIdentifier"];
-		rmlui["key_modifier"] = lua["RmlKeyModifier"];
+		struct rmlui {};
+
+		auto g = lua.new_usertype<rmlui>("rmlui",
+			// M
+			"CreateContext", &Rml::CreateContext,
+			"GetContext", sol::resolve<Rml::Context* (const Rml::String&)>(&Rml::GetContext),
+			"LoadFontFace", sol::resolve<bool(const Rml::String&, bool)>(&Rml::LoadFontFace),
+
+			// G
+			"contexts", sol::readonly_property(&getIndexedTable<Rml::Context, &functions::getContext, &functions::getMaxContexts>)
+		);
+		g.set("key_identifier", sol::readonly_property([&lua] { return lua["RmlKeyIdentifier"]; }));
+		g.set("key_modifier", sol::readonly_property([&lua] { return lua["RmlKeyModifier"]; }));
+
 	}
 
 } // end namespace Rml::SolLua

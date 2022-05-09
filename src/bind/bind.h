@@ -43,7 +43,7 @@ namespace Rml::SolLua
 	/// Constructs an iterator that can be used with sol::as_table() to return an integer indexed table.
 	/// </summary>
 	/// <typeparam name="T">The type of Rml::Element we are using for iteration.</typeparam>
-	template <typename T = Rml::Element, typename S = Rml::Element>
+	template <typename T = Rml::Element>
 	struct TableIndexedIterator
 	{
 		struct Iter
@@ -54,7 +54,7 @@ namespace Rml::SolLua
 			using pointer = T**;
 			using reference = T*&;
 
-			Iter(const TableIndexedIterator<T, S>* owner, int pos)
+			Iter(const TableIndexedIterator<T>* owner, int pos)
 				: m_owner{ owner }, m_pos{ pos }
 			{}
 
@@ -85,7 +85,7 @@ namespace Rml::SolLua
 			}
 
 		private:
-			const TableIndexedIterator<T, S>* m_owner;
+			const TableIndexedIterator<T>* m_owner;
 			mutable int m_pos = 0;
 		};
 
@@ -95,8 +95,8 @@ namespace Rml::SolLua
 		/// <param name="element">The element we are pulling data from.</param>
 		/// <param name="get">The function to get new data (ex: Rml::Element::GetChild). Must be of type std::function<T* (int)>.</param>
 		/// <param name="max">The function to get the max number of items (ex: Rml::Element::GetNumChildren). Must be of type std::function<int ()>.</param>
-		TableIndexedIterator(S* element, std::function<T* (int)> get, std::function<int()> max)
-			: m_element{ element }, m_func_get{ get }, m_func_max{ max }
+		TableIndexedIterator(std::function<T* (int)> get, std::function<int()> max)
+			: m_func_get{ get }, m_func_max{ max }
 		{
 			assert((m_func_get) && (m_func_max));
 		}
@@ -121,13 +121,12 @@ namespace Rml::SolLua
 		friend Iter;
 
 	private:
-		S* m_element;
 		std::function<T* (int)> m_func_get;
 		std::function<int ()> m_func_max;
 	};
 
 	template <typename T, typename S, auto G, auto M>
-	sol::as_table_t<TableIndexedIterator<T, S>> getIndexedTable(S& self)
+	sol::as_table_t<TableIndexedIterator<T>> getIndexedTable(S& self)
 	{
 		std::function<T* (int)> get;
 		if constexpr (std::is_member_function_pointer_v<decltype(G)>)
@@ -155,7 +154,25 @@ namespace Rml::SolLua
 			max = f;
 		}
 
-		TableIndexedIterator<T, S> result{ &self, get, max };
+		TableIndexedIterator<T> result{ get, max };
+		return sol::as_table(result);
+	}
+
+	template <typename T, auto G, auto M>
+	sol::as_table_t<TableIndexedIterator<T>> getIndexedTable()
+	{
+		std::function<T* (int)> get;
+		std::function<int()> max;
+
+		// A helper function to convert the normal getter to type std::function<T* (int)>.
+		auto fget = std::invoke(G);
+		get = fget;
+
+		// A helper function to convert the normal getter to type std::function<int ())>.
+		auto fmax = std::invoke(M);
+		max = fmax;
+
+		TableIndexedIterator<T> result{ get, max };
 		return sol::as_table(result);
 	}
 

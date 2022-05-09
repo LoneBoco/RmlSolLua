@@ -172,6 +172,7 @@ namespace Rml::SolLua
 			"ScrollIntoView", [](Rml::Element& self, sol::variadic_args va) { if (va.size() == 0) self.ScrollIntoView(true); else self.ScrollIntoView(va[0].as<bool>()); },
 			"SetAttribute", static_cast<void(Rml::Element::*)(const Rml::String&, const Rml::String&)>(&Rml::Element::SetAttribute),
 			"SetClass", &Rml::Element::SetClass,
+			"IsVisible", &Rml::Element::IsVisible,
 
 			// G+S
 			"class_name", sol::property(&Rml::Element::GetClassNames, &Rml::Element::SetClassNames),
