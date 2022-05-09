@@ -1,5 +1,7 @@
 #include "bind.h"
 
+#include "plugin/SolLuaDocument.h"
+
 #include <memory>
 
 
@@ -8,10 +10,22 @@ namespace Rml::SolLua
 
 	namespace document
 	{
+		/// <summary>
+		/// Return a SolLuaDocument.
+		/// </summary>
+		auto getDocumentBypass(Rml::Context& self, int idx)
+		{
+			auto document = self.GetDocument(idx);
+			auto result = dynamic_cast<SolLuaDocument*>(document);
+			return result;
+		}
+
+		/// <summary>
+		/// Helper function to fill the indexed table with data.
+		/// </summary>
 		auto getDocument(Rml::Context& self)
 		{
-			auto resolved = static_cast<Rml::ElementDocument* (Rml::Context::*)(int)>(&Rml::Context::GetDocument);
-			std::function<Rml::ElementDocument* (int)> result = std::bind(resolved, &self, std::placeholders::_1);
+			std::function<SolLuaDocument* (int)> result = [&self](int idx) -> auto { return getDocumentBypass(self, idx); };
 			return result;
 		}
 	}
@@ -22,7 +36,10 @@ namespace Rml::SolLua
 			// M
 			"AddEventListener", &Rml::Context::AddEventListener,
 			"CreateDocument", [](Rml::Context& self) { return self.CreateDocument(); },
-			"LoadDocument", sol::resolve<Rml::ElementDocument* (const Rml::String&)>(&Rml::Context::LoadDocument),
+			"LoadDocument", [](Rml::Context& self, const Rml::String& document) {
+				auto doc = self.LoadDocument(document);
+				return dynamic_cast<SolLuaDocument*>(doc);
+			},
 			"Render", &Rml::Context::Render,
 			"UnloadAllDocuments", &Rml::Context::UnloadAllDocuments,
 			"UnloadDocument", &Rml::Context::UnloadDocument,
@@ -32,7 +49,7 @@ namespace Rml::SolLua
 			"dimensions", sol::property(&Rml::Context::GetDimensions, &Rml::Context::SetDimensions),
 
 			// G
-			"documents", sol::readonly_property(&getIndexedTable<Rml::ElementDocument, Rml::Context, &document::getDocument, &Rml::Context::GetNumDocuments>),
+			"documents", sol::readonly_property(&getIndexedTable<SolLuaDocument, Rml::Context, &document::getDocument, &Rml::Context::GetNumDocuments>),
 			"focus_element", sol::readonly_property(&Rml::Context::GetFocusElement),
 			"hover_element", sol::readonly_property(&Rml::Context::GetHoverElement),
 			"name", sol::readonly_property(&Rml::Context::GetName),

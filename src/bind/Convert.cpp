@@ -1,5 +1,7 @@
 #include "bind.h"
 
+#include "plugin/SolLuaDocument.h"
+
 
 namespace Rml::SolLua
 {
@@ -24,7 +26,7 @@ namespace Rml::SolLua
 		auto element = lua.create_named_table("Element");
 		auto element_as = element.create_named("As");
 
-		element_as["Document"] = CONVERSION(Rml::ElementDocument);
+		element_as["Document"] = CONVERSION(SolLuaDocument);
 		element_as["ElementText"] = CONVERSION(Rml::ElementText);
 		element_as["ElementDataGridRow"] = CONVERSION(Rml::ElementDataGridRow);
 		element_as["ElementDataGrid"] = CONVERSION(Rml::ElementDataGrid);

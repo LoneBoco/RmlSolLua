@@ -31,5 +31,6 @@ namespace Rml::SolLua
 
     RMLUILUA_API void Initialise(sol::state_view* state);
     RMLUILUA_API void Initialize(sol::state_view* state);
+    RMLUILUA_API void RegisterLua(sol::state_view* state);
 
 } // end namespace Rml::SolLua

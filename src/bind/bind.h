@@ -93,8 +93,8 @@ namespace Rml::SolLua
 		/// Constructs the iterator.
 		/// </summary>
 		/// <param name="element">The element we are pulling data from.</param>
-		/// <param name="get">The function of the element to get new data (ex: Rml::Element::GetChild)</param>
-		/// <param name="max">The function of the element to get the max number of items (ex: Rml::Element::GetNumChildren)</param>
+		/// <param name="get">The function to get new data (ex: Rml::Element::GetChild). Must be of type std::function<T* (int)>.</param>
+		/// <param name="max">The function to get the max number of items (ex: Rml::Element::GetNumChildren). Must be of type std::function<int ()>.</param>
 		TableIndexedIterator(S* element, std::function<T* (int)> get, std::function<int()> max)
 			: m_element{ element }, m_func_get{ get }, m_func_max{ max }
 		{
@@ -132,10 +132,12 @@ namespace Rml::SolLua
 		std::function<T* (int)> get;
 		if constexpr (std::is_member_function_pointer_v<decltype(G)>)
 		{
+			// Straight member function pointer like Rml::Element::GetChild.
 			get = std::bind(G, &self, std::placeholders::_1);
 		}
 		else
 		{
+			// A helper function to convert the normal getter to type std::function<T* (int)>.
 			auto f = std::invoke(G, self);
 			get = f;
 		}
@@ -143,10 +145,12 @@ namespace Rml::SolLua
 		std::function<int()> max;
 		if constexpr (std::is_member_function_pointer_v<decltype(M)>)
 		{
+			// Straight member function pointer like Rml::Element::GetNumChildren.
 			max = std::bind(M, &self);
 		}
 		else
 		{
+			// A helper function to convert the normal getter to type std::function<int ())>.
 			auto f = std::invoke(M, self);
 			max = f;
 		}
@@ -161,6 +165,7 @@ namespace Rml::SolLua
 namespace Rml::SolLua
 {
 
+	// Called from RmlSolLua.cpp
 	void bind_color(sol::state_view& lua);
 	void bind_context(sol::state_view& lua);
 	void bind_document(sol::state_view& lua);

@@ -83,16 +83,30 @@ namespace Rml::SolLua
 		}
 	}
 
+	namespace submit
+	{
+		void submit(Rml::ElementForm& self)
+		{
+			self.Submit();
+		}
+
+		void submitName(Rml::ElementForm& self, const std::string& name)
+		{
+			self.Submit(name);
+		}
+
+		void submitNameValue(Rml::ElementForm& self, const std::string& name, const std::string& value)
+		{
+			self.Submit(name, value);
+		}
+	}
+
 	void bind_element_form(sol::state_view& lua)
 	{
 
 		lua.new_usertype<Rml::ElementForm>("ElementForm", sol::no_constructor,
 			// M
-			"Submit", sol::overload(
-				[](ElementForm& self) { self.Submit(); },
-				[](ElementForm& self, const std::string& name) { self.Submit(name); },
-				[](ElementForm& self, const std::string& name, const std::string& value) { self.Submit(name, value); }
-			),
+			"Submit", sol::overload(&submit::submit, &submit::submitName, &submit::submitNameValue),
 
 			// B
 			sol::base_classes, sol::bases<Rml::Element>()

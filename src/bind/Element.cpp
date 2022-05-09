@@ -1,5 +1,6 @@
 #include "bind.h"
 
+#include "plugin/SolLuaDocument.h"
 #include "plugin/SolLuaEventListener.h"
 
 #include <unordered_map>
@@ -57,6 +58,13 @@ namespace Rml::SolLua
 			}
 
 			return result;
+		}
+
+		auto getOwnerDocument(Rml::Element& self)
+		{
+			auto document = self.GetOwnerDocument();
+			auto soldocument = dynamic_cast<SolLuaDocument*>(document);
+			return soldocument;
 		}
 	}
 
@@ -187,7 +195,7 @@ namespace Rml::SolLua
 			"offset_parent", sol::readonly_property(&Rml::Element::GetOffsetParent),
 			"offset_top", sol::readonly_property(&Rml::Element::GetOffsetTop),
 			"offset_width", sol::readonly_property(&Rml::Element::GetOffsetWidth),
-			"owner_document", sol::readonly_property(&Rml::Element::GetOwnerDocument),
+			"owner_document", sol::readonly_property(&functions::getOwnerDocument),
 			"parent_node", sol::readonly_property(&Rml::Element::GetParentNode),
 			"previous_sibling", sol::readonly_property(&Rml::Element::GetPreviousSibling),
 			"scroll_height", sol::readonly_property(&Rml::Element::GetScrollHeight),
