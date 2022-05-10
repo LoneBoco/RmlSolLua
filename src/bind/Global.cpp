@@ -17,6 +17,21 @@ namespace Rml::SolLua
 			std::function<int ()> result = []() { return Rml::GetNumContexts(); };
 			return result;
 		}
+
+		auto loadFontFace1(const Rml::String& file)
+		{
+			return Rml::LoadFontFace(file);
+		}
+
+		auto loadFontFace2(const Rml::String& file, bool fallback)
+		{
+			return Rml::LoadFontFace(file, fallback);
+		}
+
+		auto loadFontFace3(const Rml::String& file, bool fallback, Rml::Style::FontWeight weight)
+		{
+			return Rml::LoadFontFace(file, fallback, weight);
+		}
 	}
 
 
@@ -215,13 +230,23 @@ namespace Rml::SolLua
 			"SCROLLLOCK", Rml::Input::KM_SCROLLLOCK
 		);
 
+		lua.new_enum("RmlFontWeight",
+			"Auto", Rml::Style::FontWeight::Auto,
+			"Normal", Rml::Style::FontWeight::Normal,
+			"Bold", Rml::Style::FontWeight::Bold
+		);
+
 		struct rmlui {};
 
 		auto g = lua.new_usertype<rmlui>("rmlui",
 			// M
 			"CreateContext", &Rml::CreateContext,
 			"GetContext", sol::resolve<Rml::Context* (const Rml::String&)>(&Rml::GetContext),
-			"LoadFontFace", sol::resolve<bool(const Rml::String&, bool)>(&Rml::LoadFontFace),
+			"LoadFontFace", sol::overload(
+				&functions::loadFontFace1,
+				&functions::loadFontFace2,
+				&functions::loadFontFace3
+			),
 
 			// G
 			"contexts", sol::readonly_property(&getIndexedTable<Rml::Context, &functions::getContext, &functions::getMaxContexts>)
