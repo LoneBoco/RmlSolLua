@@ -1,6 +1,7 @@
 #include "bind.h"
 
 #include "plugin/SolLuaDocument.h"
+#include "plugin/SolLuaDataModel.h"
 
 #include <memory>
 
@@ -39,6 +40,74 @@ namespace Rml::SolLua
 		}
 	}
 
+	namespace datamodel
+	{
+		/// <summary>
+		/// Bind a sol::table into the data model.
+		/// </summary>
+		/// <param name="data">The data model container.</param>
+		/// <param name="table">The table to bind.</param>
+		void bindTable(SolLuaDataModel* data, sol::table& table)
+		{
+			for (auto& [key, value] : table)
+			{
+				if (value.get_type() == sol::type::function)
+				{
+					// TODO.  Official Lua plugin can handle callbacks.
+				}
+				else
+				{
+					auto skey = key.as<std::string>();
+					auto it = data->ObjectList.insert_or_assign(skey, value);
+
+					data->Constructor.BindCustomDataVariable(skey, Rml::DataVariable(data->ObjectDef.get(), &(it.first->second)));
+				}
+			}
+		}
+
+		/// <summary>
+		/// Opens a Lua data model.
+		/// </summary>
+		/// <param name="self">The context that called this function.</param>
+		/// <param name="name">The name of the data model.</param>
+		/// <param name="model">The table to bind as the data model.</param>
+		/// <param name="s">Lua state.</param>
+		/// <returns>A unique pointer to a Sol Lua Data Model.</returns>
+		std::unique_ptr<SolLuaDataModel> openDataModel(Rml::Context& self, const Rml::String& name, sol::object model, sol::this_state s)
+		{
+			sol::state_view lua{ s };
+
+			// Create data model.
+			auto constructor = self.CreateDataModel(name);
+			auto data = std::make_unique<SolLuaDataModel>(lua);
+
+			// Already created?  Get existing.
+			if (!constructor)
+			{
+				constructor = self.GetDataModel(name);
+				if (!constructor)
+					return data;
+			}
+
+			data->Constructor = constructor;
+			data->Handle = constructor.GetModelHandle();
+			data->ObjectDef = std::make_unique<SolLuaObjectDef>(data.get());
+
+			// Only bind table.
+			if (model.get_type() == sol::type::table)
+			{
+				data->Table = model.as<sol::table>();
+				datamodel::bindTable(data.get(), data->Table);
+			}
+
+			return data;
+		}
+	}
+
+	/// <summary>
+	/// Binds the Rml::Context class to Lua.
+	/// </summary>
+	/// <param name="lua">The Lua state to bind into.</param>
 	void bind_context(sol::state_view& lua)
 	{
 		lua.new_usertype<Rml::Context>("Context", sol::no_constructor,
@@ -54,6 +123,7 @@ namespace Rml::SolLua
 			"UnloadAllDocuments", &Rml::Context::UnloadAllDocuments,
 			"UnloadDocument", &Rml::Context::UnloadDocument,
 			"Update", &Rml::Context::Update,
+			"OpenDataModel", &datamodel::openDataModel,
 
 			// G+S
 			"dimensions", sol::property(&Rml::Context::GetDimensions, &Rml::Context::SetDimensions),

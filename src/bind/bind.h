@@ -140,7 +140,7 @@ namespace Rml::SolLua
 			auto f = std::invoke(G, self);
 			get = f;
 		}
-		
+
 		std::function<int()> max;
 		if constexpr (std::is_member_function_pointer_v<decltype(M)>)
 		{
@@ -185,6 +185,7 @@ namespace Rml::SolLua
 	// Called from RmlSolLua.cpp
 	void bind_color(sol::state_view& lua);
 	void bind_context(sol::state_view& lua);
+	void bind_datamodel(sol::state_view& lua);
 	void bind_document(sol::state_view& lua);
 	void bind_element(sol::state_view& lua);
 	void bind_element_derived(sol::state_view& lua);

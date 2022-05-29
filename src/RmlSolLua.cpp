@@ -28,6 +28,7 @@ namespace Rml::SolLua
     {
         bind_color(*state);
         bind_context(*state);
+        bind_datamodel(*state);
         bind_element(*state);
         bind_element_derived(*state);
         bind_element_form(*state);
