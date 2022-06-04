@@ -58,7 +58,17 @@ namespace Rml::SolLua
 		auto document = dynamic_cast<SolLuaDocument*>(m_element->GetOwnerDocument());
 		if (document != nullptr && m_func.valid())
 		{
-			sol::set_environment(document->GetLuaEnvironment(), m_func);
+			auto& env = document->GetLuaEnvironment();
+			const auto& ident = document->GetLuaEnvironmentIdentifier();
+
+			// Move our event into the Lua environment.
+			sol::set_environment(env, m_func);
+
+			// If we have an identifier, set it now.
+			if (!ident.empty())
+				env.set(ident, document->GetId());
+
+			// Call the event!
 			m_func.call(event, m_element, document);
 		}
 	}
