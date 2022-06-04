@@ -46,6 +46,13 @@ namespace Rml::SolLua
 			return result;
 		}
 
+		auto getElementsByClassName(Rml::Element& self, const Rml::String& class_name)
+		{
+			Rml::ElementList result;
+			self.GetElementsByClassName(result, class_name);
+			return result;
+		}
+
 		auto getAttributes(Rml::Element& self, sol::this_state s)
 		{
 			SolObjectMap result;
@@ -65,6 +72,13 @@ namespace Rml::SolLua
 			auto document = self.GetOwnerDocument();
 			auto soldocument = dynamic_cast<SolLuaDocument*>(document);
 			return soldocument;
+		}
+
+		auto getQuerySelectorAll(Rml::Element& self, const Rml::String& selector)
+		{
+			Rml::ElementList result;
+			self.QuerySelectorAll(result, selector);
+			return result;
 		}
 	}
 
@@ -162,6 +176,9 @@ namespace Rml::SolLua
 			"GetAttribute", &functions::getAttribute,
 			"GetElementById", &Rml::Element::GetElementById,
 			"GetElementsByTagName", &functions::getElementsByTagName,
+			"GetElementsByClassName", &functions::getElementsByClassName,
+			"QuerySelector", &Rml::Element::QuerySelector,
+			"QuerySelectorAll", &functions::getQuerySelectorAll,
 			"HasAttribute", &Rml::Element::HasAttribute,
 			"HasChildNodes", &Rml::Element::HasChildNodes,
 			"InsertBefore", [](Rml::Element& self, Rml::ElementPtr& element, Rml::Element* adjacent_element) { self.InsertBefore(std::move(element), adjacent_element); },

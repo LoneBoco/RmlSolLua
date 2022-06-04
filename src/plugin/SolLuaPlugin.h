@@ -23,6 +23,7 @@ namespace Rml::SolLua
     {
     public:
         SolLuaPlugin(sol::state_view lua_state);
+        SolLuaPlugin(sol::state_view lua_state, const Rml::String& lua_environment_identifier);
 
     private:
         int GetEventClasses() override;
@@ -35,6 +36,7 @@ namespace Rml::SolLua
         std::unique_ptr<SolLuaEventListenerInstancer> event_listener_instancer;
 
         sol::state_view m_lua_state;
+        Rml::String m_lua_env_identifier;
     };
 
 } // end namespace Rml::SolLua

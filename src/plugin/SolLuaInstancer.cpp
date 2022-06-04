@@ -9,7 +9,7 @@ namespace Rml::SolLua
 
 	ElementPtr SolLuaDocumentElementInstancer::InstanceElement(Element* parent, const String& tag, const XMLAttributes& attributes)
 	{
-		return ElementPtr(new SolLuaDocument(m_state, tag));
+		return ElementPtr(new SolLuaDocument(m_state, tag, m_lua_env_identifier));
 	}
 
 	void SolLuaDocumentElementInstancer::ReleaseElement(Element* element)

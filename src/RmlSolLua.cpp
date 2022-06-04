@@ -19,9 +19,23 @@ namespace Rml::SolLua
         }
     }
 
+    void Initialise(sol::state_view* state, const Rml::String& lua_environment_identifier)
+    {
+        if (state != nullptr)
+        {
+            ::Rml::RegisterPlugin(new SolLuaPlugin(*state, lua_environment_identifier));
+            RegisterLua(state);
+        }
+    }
+
     void Initialize(sol::state_view* state)
     {
         Initialise(state);
+    }
+
+    void Initialize(sol::state_view* state, const Rml::String& lua_environment_identifier)
+    {
+        Initialise(state, lua_environment_identifier);
     }
 
     void RegisterLua(sol::state_view* state)

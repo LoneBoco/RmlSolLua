@@ -6,13 +6,8 @@
 
 namespace Rml::SolLua
 {
-	/// <summary>
-	/// Lua error handler.
-	/// </summary>
-	/// <param name="">(Unused) Lua state.</param>
-	/// <param name="pfr">The result that holds our error.</param>
-	/// <returns>The error result.</returns>
-	static sol::protected_function_result ErrorHandler(lua_State*, sol::protected_function_result pfr)
+
+	sol::protected_function_result ErrorHandler(lua_State*, sol::protected_function_result pfr)
 	{
 		if (!pfr.valid())
 		{
@@ -22,8 +17,10 @@ namespace Rml::SolLua
 		return pfr;
 	}
 
-	SolLuaDocument::SolLuaDocument(sol::state_view state, const Rml::String& tag)
-		: m_state(state), ElementDocument(tag)
+	//-----------------------------------------------------
+
+	SolLuaDocument::SolLuaDocument(sol::state_view state, const Rml::String& tag, const Rml::String& lua_env_identifier)
+		: m_state(state), ElementDocument(tag), m_environment(state, sol::create, state.globals()), m_lua_env_identifier(lua_env_identifier)
 	{
 	}
 
@@ -37,12 +34,26 @@ namespace Rml::SolLua
 		buffer += "\n";
 		buffer += context;
 
-		m_state.safe_script(buffer, ErrorHandler);
+		if (!m_lua_env_identifier.empty())
+			m_environment[m_lua_env_identifier] = GetId();
+
+		m_state.safe_script(buffer, m_environment, ErrorHandler);
 	}
 
 	void SolLuaDocument::LoadExternalScript(const String& source_path)
 	{
-		m_state.safe_script_file(source_path, ErrorHandler);
+		if (!m_lua_env_identifier.empty())
+			m_environment[m_lua_env_identifier] = GetId();
+
+		m_state.safe_script_file(source_path, m_environment, ErrorHandler);
+	}
+
+	sol::protected_function_result SolLuaDocument::RunLuaScript(const Rml::String& script)
+	{
+		if (!m_lua_env_identifier.empty())
+			m_environment[m_lua_env_identifier] = GetId();
+
+		return m_state.safe_script(script, m_environment, ErrorHandler);
 	}
 
 } // namespace Rml::SolLua
