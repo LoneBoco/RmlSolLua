@@ -32,13 +32,9 @@ namespace Rml::SolLua
 		Factory::RegisterEventListenerInstancer(event_listener_instancer.get());
 	}
 
-	void SolLuaPlugin::OnPreShutdown()
-	{
-		m_lua_state.collect_garbage();
-	}
-
 	void SolLuaPlugin::OnShutdown()
 	{
+		m_lua_state.collect_garbage();
 		delete this;
 	}
 

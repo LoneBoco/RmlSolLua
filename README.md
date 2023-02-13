@@ -34,7 +34,7 @@ int main()
 
   // Collect garbage before shutdown.
   // This is needed in RmlUi 5.0 and below to prevent a crash.
-  // If PR #414 is accepted, this will not be required in RmlUi 5.1+
+  // Alternatively, make sure initialize the RmlSolLua plugin LAST.
   lua.collect_garbage();
 
   // Shutdown RmlUi.
@@ -49,7 +49,8 @@ int main()
 
 > ##### Note
 > **RmlSolLua** does not manage your **sol3** `sol::state`.  You must ensure it stays in scope until after the call to `Rml::Shutdown`.
-> In **RmlUi 5.0**, call the `collect_garbage` function on your Lua state right before you shut down **RmlUi**. If you don't, you may experience a crash due to `std::unique_ptr`s holding onto RmlUi elements and preventing their destruction.
+>
+> **RmlUi 5.0** has a use-after-free bug with plugin shutdown that involves plugins that monitor `Rml::Element` creation and deletion (like the Debugger plugin).  To avoid a crash, you must either initialize RmlSolLua LAST (after Debugger), or call the `collect_garbage` function on your Lua state right before you shut down **RmlUi**.
 
 ## Coverage
 
