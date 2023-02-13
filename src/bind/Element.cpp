@@ -176,7 +176,6 @@ namespace Rml::SolLua
 			"GetAttribute", &functions::getAttribute,
 			"GetElementById", &Rml::Element::GetElementById,
 			"GetElementsByTagName", &functions::getElementsByTagName,
-			"GetElementsByClassName", &functions::getElementsByClassName,
 			"QuerySelector", &Rml::Element::QuerySelector,
 			"QuerySelectorAll", &functions::getQuerySelectorAll,
 			"HasAttribute", &Rml::Element::HasAttribute,
@@ -189,7 +188,15 @@ namespace Rml::SolLua
 			"ScrollIntoView", [](Rml::Element& self, sol::variadic_args va) { if (va.size() == 0) self.ScrollIntoView(true); else self.ScrollIntoView(va[0].as<bool>()); },
 			"SetAttribute", static_cast<void(Rml::Element::*)(const Rml::String&, const Rml::String&)>(&Rml::Element::SetAttribute),
 			"SetClass", &Rml::Element::SetClass,
-			"IsVisible", &Rml::Element::IsVisible,
+			//--
+			"GetElementsByClassName", &functions::getElementsByClassName,
+			"Clone", &Rml::Element::Clone,
+			"Closest", &Rml::Element::Closest,
+			"SetPseudoClass", &Rml::Element::SetPseudoClass,
+			"IsPseudoClassSet", &Rml::Element::IsPseudoClassSet,
+			"ArePseudoClassesSet", &Rml::Element::ArePseudoClassesSet,
+			"GetActivePseudoClasses", &Rml::Element::GetActivePseudoClasses,
+			"IsPointWithinElement", &Rml::Element::IsPointWithinElement,
 
 			// G+S
 			"class_name", sol::property(&Rml::Element::GetClassNames, &Rml::Element::SetClassNames),
@@ -219,7 +226,15 @@ namespace Rml::SolLua
 			"scroll_height", sol::readonly_property(&Rml::Element::GetScrollHeight),
 			"scroll_width", sol::readonly_property(&Rml::Element::GetScrollWidth),
 			"style", sol::readonly_property(&style::getElementStyleProxy),
-			"tag_name", sol::readonly_property(&Rml::Element::GetTagName)
+			"tag_name", sol::readonly_property(&Rml::Element::GetTagName),
+			//--
+			"address", sol::readonly_property([](Rml::Element& self) { return self.GetAddress(); }),
+			"absolute_left", sol::readonly_property(&Rml::Element::GetAbsoluteLeft),
+			"absolute_top", sol::readonly_property(&Rml::Element::GetAbsoluteTop),
+			"baseline", sol::readonly_property(&Rml::Element::GetBaseline),
+			"line_height", sol::readonly_property(&Rml::Element::GetLineHeight),
+			"visible", sol::readonly_property(&Rml::Element::IsVisible),
+			"z_index", sol::readonly_property(&Rml::Element::GetZIndex)
 		);
 
 	}

@@ -104,6 +104,19 @@ namespace Rml::SolLua
 		}
 	}
 
+	namespace element
+	{
+		auto getElementAtPoint1(Rml::Context& self, Rml::Vector2f point)
+		{
+			return self.GetElementAtPoint(point);
+		}
+
+		auto getElementAtPoint2(Rml::Context& self, Rml::Vector2f point, Rml::Element& ignore)
+		{
+			return self.GetElementAtPoint(point, &ignore);
+		}
+	}
+
 	/// <summary>
 	/// Binds the Rml::Context class to Lua.
 	/// </summary>
@@ -124,9 +137,30 @@ namespace Rml::SolLua
 			"UnloadDocument", &Rml::Context::UnloadDocument,
 			"Update", &Rml::Context::Update,
 			"OpenDataModel", &datamodel::openDataModel,
+			"ProcessMouseMove", &Rml::Context::ProcessMouseMove,
+			"ProcessMouseButtonDown", &Rml::Context::ProcessMouseButtonDown,
+			"ProcessMouseButtonUp", &Rml::Context::ProcessMouseButtonUp,
+			"ProcessMouseWheel", &Rml::Context::ProcessMouseWheel,
+			"ProcessMouseLeave", &Rml::Context::ProcessMouseLeave,
+			"IsMouseInteracting", &Rml::Context::IsMouseInteracting,
+			"ProcessKeyDown", &Rml::Context::ProcessKeyDown,
+			"ProcessKeyUp", &Rml::Context::ProcessKeyUp,
+			"ProcessTextInput", sol::resolve<bool(const Rml::String&)>(&Rml::Context::ProcessTextInput),
+			//--
+			"EnableMouseCursor", &Rml::Context::EnableMouseCursor,
+			"ActivateTheme", &Rml::Context::ActivateTheme,
+			"IsThemeActive", &Rml::Context::IsThemeActive,
+			"GetElementAtPoint", sol::overload(&element::getElementAtPoint1, &element::getElementAtPoint2),
+			"PullDocumentToFront", &Rml::Context::PullDocumentToFront,
+			"PushDocumentToBack", &Rml::Context::PushDocumentToBack,
+			"UnfocusDocument", &Rml::Context::UnfocusDocument,
+			// RemoveEventListener
 
 			// G+S
 			"dimensions", sol::property(&Rml::Context::GetDimensions, &Rml::Context::SetDimensions),
+			"dp_ratio", sol::property(&Rml::Context::GetDensityIndependentPixelRatio, &Rml::Context::SetDensityIndependentPixelRatio),
+			//--
+			"clip_region", sol::property(&Rml::Context::GetActiveClipRegion, &Rml::Context::SetActiveClipRegion),
 
 			// G
 			"documents", sol::readonly_property(&getIndexedTable<SolLuaDocument, Rml::Context, &document::getDocument, &Rml::Context::GetNumDocuments>),

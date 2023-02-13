@@ -55,7 +55,7 @@ namespace Rml::SolLua
 			variant.GetInto<double>(*static_cast<double*>(ptr));
 		else // if (obj->get_type() == sol::type::lua_nil)
 			*obj = sol::make_object(m_model->Lua, sol::nil);
-		
+
 		return true;
 	}
 

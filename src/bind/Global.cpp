@@ -32,6 +32,16 @@ namespace Rml::SolLua
 		{
 			return Rml::LoadFontFace(file, fallback, weight);
 		}
+
+		auto registerEventType4(const Rml::String& type, bool interruptible, bool bubbles, Rml::DefaultActionPhase default_action_phase)
+		{
+			return Rml::RegisterEventType(type, interruptible, bubbles, default_action_phase);
+		}
+
+		auto registerEventType3(const Rml::String& type, bool interruptible, bool bubbles)
+		{
+			return Rml::RegisterEventType(type, interruptible, bubbles, Rml::DefaultActionPhase::None);
+		}
 	}
 
 
@@ -43,7 +53,6 @@ namespace Rml::SolLua
 		// The compiler can't handle everything under one call.
 		//lua.new_enum("RmlKeyIdentifier");
 		lua.create_named_table("RmlKeyIdentifier");
-		_ENUM(UNKNOWN);
 		_ENUM(UNKNOWN);
 		_ENUM(SPACE);
 		_ENUM(0);
@@ -236,20 +245,32 @@ namespace Rml::SolLua
 			"Bold", Rml::Style::FontWeight::Bold
 		);
 
+		//--
+		lua.new_enum("RmlDefaultActionPhase",
+			"None", Rml::DefaultActionPhase::None,
+			"Target", Rml::DefaultActionPhase::Target,
+			"TargetAndBubble", Rml::DefaultActionPhase::TargetAndBubble
+		);
+
 		struct rmlui {};
 
 		auto g = lua.new_usertype<rmlui>("rmlui",
 			// M
 			"CreateContext", &Rml::CreateContext,
-			"GetContext", sol::resolve<Rml::Context* (const Rml::String&)>(&Rml::GetContext),
 			"LoadFontFace", sol::overload(
 				&functions::loadFontFace1,
 				&functions::loadFontFace2,
 				&functions::loadFontFace3
 			),
+			//"RegisterTag",
+			//--
+			"GetContext", sol::resolve<Rml::Context* (const Rml::String&)>(&Rml::GetContext),
+			"RegisterEventType", sol::overload(&functions::registerEventType4, &functions::registerEventType3),
 
 			// G
-			"contexts", sol::readonly_property(&getIndexedTable<Rml::Context, &functions::getContext, &functions::getMaxContexts>)
+			"contexts", sol::readonly_property(&getIndexedTable<Rml::Context, &functions::getContext, &functions::getMaxContexts>),
+			//--
+			"version", sol::readonly_property(&Rml::GetVersion)
 		);
 		g.set("key_identifier", sol::readonly_property([&lua] { return lua["RmlKeyIdentifier"]; }));
 		g.set("key_modifier", sol::readonly_property([&lua] { return lua["RmlKeyModifier"]; }));

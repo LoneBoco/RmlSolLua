@@ -31,15 +31,32 @@ namespace Rml::SolLua
 
 	void bind_event(sol::state_view& lua)
 	{
+		//--
+		lua.new_enum("RmlEventPhase",
+			"None", Rml::EventPhase::None,
+			"Capture", Rml::EventPhase::Capture,
+			"Target", Rml::EventPhase::Target,
+			"Bubble", Rml::EventPhase::Bubble
+		);
+
 		lua.new_usertype<Rml::Event>("Event", sol::no_constructor,
 			// M
 			"StopPropagation", &Rml::Event::StopPropagation,
+			//--
+			"StopImmediatePropagation", &Rml::Event::StopImmediatePropagation,
+
+			// G+S
 
 			// G
 			"current_element", sol::readonly_property(&Rml::Event::GetCurrentElement),
 			"type", sol::readonly_property(&Rml::Event::GetType),
 			"target_element", sol::readonly_property(&Rml::Event::GetTargetElement),
-			"parameters", sol::readonly_property(&functions::getParameters)
+			"parameters", sol::readonly_property(&functions::getParameters),
+			//--
+			"event_phase", sol::readonly_property(&Rml::Event::GetPhase),
+			"interruptible", sol::readonly_property(&Rml::Event::IsInterruptible),
+			"propagating", sol::readonly_property(&Rml::Event::IsPropagating),
+			"immediate_propagating", sol::readonly_property(&Rml::Event::IsImmediatePropagating)
 		);
 	}
 

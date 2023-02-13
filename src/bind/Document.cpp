@@ -26,7 +26,6 @@ namespace Rml::SolLua
 		auto reloadStyleSheet(SolLuaDocument& self)
 		{
 			self.ReloadStyleSheet();
-
 		}
 
 		auto reloadStyleSheetAndLoad(SolLuaDocument& self, bool load)
@@ -37,6 +36,21 @@ namespace Rml::SolLua
 				// Dispatch the load event so we can re-bind any scripts that got wiped out.
 				self.DispatchEvent(EventId::Load, Dictionary());
 			}
+		}
+
+		auto loadInlineScript3(SolLuaDocument& self, const Rml::String& content, const Rml::String& source_path, int source_line)
+		{
+			self.LoadInlineScript(content, source_path, source_line);
+		}
+
+		auto loadInlineScript2(SolLuaDocument& self, const Rml::String& content, const Rml::String& source_path)
+		{
+			loadInlineScript3(self, content, source_path, 0);
+		}
+
+		auto loadInlineScript1(SolLuaDocument& self, const Rml::String& content)
+		{
+			loadInlineScript3(self, content, self.GetSourceURL(), 0);
 		}
 	}
 
@@ -52,10 +66,10 @@ namespace Rml::SolLua
 
 		lua.new_enum<Rml::FocusFlag>("RmlFocusFlag",
 			{
-				{ "", Rml::FocusFlag::None },
-				{ "", Rml::FocusFlag::Document },
-				{ "", Rml::FocusFlag::Keep },
-				{ "", Rml::FocusFlag::Auto }
+				{ "None", Rml::FocusFlag::None },
+				{ "Document", Rml::FocusFlag::Document },
+				{ "Keep", Rml::FocusFlag::Keep },
+				{ "Auto", Rml::FocusFlag::Auto }
 			}
 		);
 
@@ -68,13 +82,20 @@ namespace Rml::SolLua
 			"Close", &SolLuaDocument::Close,
 			"CreateElement", &SolLuaDocument::CreateElement,
 			"CreateTextNode", &SolLuaDocument::CreateTextNode,
+			//--
 			"ReloadStyleSheet", sol::overload(&document::reloadStyleSheet, &document::reloadStyleSheetAndLoad),
+			"LoadInlineScript", sol::overload(&document::loadInlineScript1, &document::loadInlineScript2, &document::loadInlineScript3),
+			"LoadExternalScript", &SolLuaDocument::LoadExternalScript,
+			"UpdateDocument", &SolLuaDocument::UpdateDocument,
 
 			// G+S
 			"title", sol::property(&SolLuaDocument::GetTitle, &SolLuaDocument::SetTitle),
 
 			// G
 			"context", sol::readonly_property(&SolLuaDocument::GetContext),
+			//--
+			"url", sol::readonly_property(&SolLuaDocument::GetSourceURL),
+			"modal", sol::readonly_property(&SolLuaDocument::IsModal),
 
 			// B
 			sol::base_classes, sol::bases<Rml::Element>()

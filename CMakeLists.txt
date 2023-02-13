@@ -10,11 +10,12 @@ set (CMAKE_CXX_STANDARD 17)
 # Add source to this project's executable.
 add_library (RmlSolLua STATIC)
 
+find_library (RmlCore HINTS dependencies/RmlUi)
+
 target_sources (RmlSolLua
 	PRIVATE
 		"include/RmlSolLua/RmlSolLua.h"
 		"src/RmlSolLua.cpp"
-		"src/RmlSolLua.h"
 		"src/bind/bind.cpp"
 		"src/bind/bind.h"
 		"src/bind/Colour.cpp"

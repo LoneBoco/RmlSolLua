@@ -28,8 +28,9 @@ namespace Rml::SolLua
 
 		element_as["Document"] = CONVERSION(SolLuaDocument);
 		element_as["ElementText"] = CONVERSION(Rml::ElementText);
-		element_as["ElementDataGridRow"] = CONVERSION(Rml::ElementDataGridRow);
 		element_as["ElementDataGrid"] = CONVERSION(Rml::ElementDataGrid);
+		element_as["ElementDataGridRow"] = CONVERSION(Rml::ElementDataGridRow);
+		element_as["ElementDataGridCell"] = CONVERSION(Rml::ElementDataGridCell);
 		element_as["ElementForm"] = CONVERSION(Rml::ElementForm);
 		element_as["ElementFormControl"] = CONVERSION(Rml::ElementFormControl);
 		element_as["ElementFormControlInput"] = CONVERSION(Rml::ElementFormControlInput);

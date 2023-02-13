@@ -29,8 +29,11 @@ namespace Rml::SolLua
         int GetEventClasses() override;
 
         void OnInitialise() override;
-
         void OnShutdown() override;
+
+        // RmlUi 5.0 doesn't have OnPreShutdown.
+        // Is there a more elegant way to do this other than not using override?
+        void OnPreShutdown(); // override;
 
         std::unique_ptr<SolLuaDocumentElementInstancer> document_element_instancer;
         std::unique_ptr<SolLuaEventListenerInstancer> event_listener_instancer;

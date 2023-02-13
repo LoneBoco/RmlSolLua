@@ -15,7 +15,7 @@ namespace Rml::SolLua
 			return self.HasAttribute(name);
 		}
 		#define HASATTRGETTER(S, N) [](S& self) { return self.HasAttribute(N); }
-		
+
 		template <typename T>
 		T getAttributeWithDefault(auto& self, const std::string& name, T def)
 		{
@@ -120,6 +120,10 @@ namespace Rml::SolLua
 			"name", sol::property(&Rml::ElementFormControl::GetName, &Rml::ElementFormControl::SetName),
 			"value", sol::property(&Rml::ElementFormControl::GetValue, &Rml::ElementFormControl::SetValue),
 
+			// G
+			//--
+			"submitted", sol::readonly_property(&Rml::ElementFormControl::IsSubmitted),
+
 			// B
 			sol::base_classes, sol::bases<Rml::Element>()
 		);
@@ -173,7 +177,7 @@ namespace Rml::SolLua
 		);
 
 		///////////////////////////
-		
+
 		lua.new_usertype<Rml::ElementFormControlDataSelect>("ElementFormControlDataSelect", sol::no_constructor,
 			// M
 			"SetDataSource", &Rml::ElementFormControlDataSelect::SetDataSource,
