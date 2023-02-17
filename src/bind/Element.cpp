@@ -197,6 +197,7 @@ namespace Rml::SolLua
 			"ArePseudoClassesSet", &Rml::Element::ArePseudoClassesSet,
 			"GetActivePseudoClasses", &Rml::Element::GetActivePseudoClasses,
 			"IsPointWithinElement", &Rml::Element::IsPointWithinElement,
+			"ProcessDefaultAction", &Rml::Element::ProcessDefaultAction,
 
 			// G+S
 			"class_name", sol::property(&Rml::Element::GetClassNames, &Rml::Element::SetClassNames),
