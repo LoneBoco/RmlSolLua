@@ -4,6 +4,8 @@
 
 #include <RmlUi/Core/Element.h>
 #include <RmlUi/Core/Log.h>
+#include <RmlUi/Core/Context.h>
+#include <RmlUi/Core/ElementDocument.h>
 
 #include <string>
 //#include <format>
@@ -18,9 +20,43 @@ namespace Rml::SolLua
 		if (element == nullptr)
 			return;
 
+		auto* context = element->GetContext();
+		auto* document = element->GetOwnerDocument();
+
 		// Wrap our code so we pass event, element, and document.
 		//auto f = std::format("return function (event,element,document) {} end", code);
-		std::string f{ "return function (event,element,document) " };
+		Rml::String f{ "--" };
+		if (context != nullptr)
+		{
+			f.append("[");
+			f.append(context->GetName());
+			f.append("]");
+		}
+		if (document != nullptr)
+		{
+			f.append("[");
+			f.append(document->GetSourceURL());
+			f.append("]");
+		}
+
+		if (f.size() != 2)
+			f.append(" ");
+
+		f.append(element->GetTagName());
+		if (const auto& id = element->GetId(); !id.empty())
+		{
+			f.append("#");
+			f.append(id);
+		}
+		if (auto classes = element->GetClassNames(); !classes.empty())
+		{
+			f.append(".");
+			std::replace(classes.begin(), classes.end(), ' ', '.');
+			f.append(classes);
+		}
+
+		f.append("\n");
+		f.append("return function (event,element,document) ");
 		f.append(code);
 		f.append(" end");
 
@@ -69,7 +105,9 @@ namespace Rml::SolLua
 				env.set(ident, document->GetId());
 
 			// Call the event!
-			m_func.call(event, m_element, document);
+			auto result = m_func.call(event, m_element, document);
+			if (!result.valid())
+				ErrorHandler(m_func.lua_state(), std::move(result));
 		}
 	}
 

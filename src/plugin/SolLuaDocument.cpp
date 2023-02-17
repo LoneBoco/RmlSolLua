@@ -2,6 +2,7 @@
 
 #include <RmlUi/Core/Stream.h>
 #include <RmlUi/Core/Log.h>
+#include <RmlUi/Core/Context.h>
 
 
 namespace Rml::SolLua
@@ -24,15 +25,19 @@ namespace Rml::SolLua
 	{
 	}
 
-	void SolLuaDocument::LoadInlineScript(const Rml::String& context, const Rml::String& source_path, int source_line)
+	void SolLuaDocument::LoadInlineScript(const Rml::String& content, const Rml::String& source_path, int source_line)
 	{
-		Rml::String buffer;
-		buffer += "--";
-		buffer += source_path;
-		buffer += ":";
-		buffer += Rml::ToString(source_line);
-		buffer += "\n";
-		buffer += context;
+		auto* context = GetContext();
+
+		Rml::String buffer{ "--" };
+		buffer.append("[");
+		buffer.append(context->GetName());
+		buffer.append("][");
+		buffer.append(GetSourceURL());
+		buffer.append("]:");
+		buffer.append(Rml::ToString(source_line));
+		buffer.append("\n");
+		buffer.append(content);
 
 		if (!m_lua_env_identifier.empty())
 			m_environment[m_lua_env_identifier] = GetId();
