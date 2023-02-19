@@ -55,8 +55,8 @@ int main()
 ## Coverage
 
 **RmlSolLua** contains all the **RmlUi 5.0** Lua bindings EXCEPT:
-- event callbacks in data sources
 - custom element instancing
+- datagrid sources and formatters
 
 **RmlSolLua** contains many extra Lua bindings not covered by **RmlUi 5.0**.  There are too many to list, but they can be found in the bindings under `src/bind/*.cpp` below any `//--` comments.  Any binding not covered by **RmlUi**'s base Lua bindings are kept separate to be easily identified.
 
