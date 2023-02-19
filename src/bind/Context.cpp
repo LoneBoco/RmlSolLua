@@ -51,15 +51,29 @@ namespace Rml::SolLua
 		{
 			for (auto& [key, value] : table)
 			{
+				auto skey = key.as<std::string>();
+				auto it = data->ObjectList.insert_or_assign(skey, value);
+
 				if (value.get_type() == sol::type::function)
 				{
-					// TODO.  Official Lua plugin can handle callbacks.
+					data->Constructor.BindEventCallback(skey,
+						[skey, cb = sol::protected_function{ value }, state = sol::state_view{ table.lua_state() }](Rml::DataModelHandle, Rml::Event& event, const Rml::VariantList& varlist)
+						{
+							if (cb.valid())
+							{
+								std::vector<sol::object> args;
+								for (const auto& variant : varlist)
+								{
+									args.push_back(makeObjectFromVariant(&variant, state));
+								}
+								auto pfr = cb(event, sol::as_args(args));
+								if (!pfr.valid())
+									ErrorHandler(cb.lua_state(), std::move(pfr));
+							}
+						});
 				}
 				else
 				{
-					auto skey = key.as<std::string>();
-					auto it = data->ObjectList.insert_or_assign(skey, value);
-
 					data->Constructor.BindCustomDataVariable(skey, Rml::DataVariable(data->ObjectDef.get(), &(it.first->second)));
 				}
 			}
