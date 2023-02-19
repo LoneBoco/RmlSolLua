@@ -52,6 +52,13 @@ namespace Rml::SolLua
 		{
 			loadInlineScript3(self, content, self.GetSourceURL(), 0);
 		}
+
+		auto appendToStyleSheet(SolLuaDocument& self, const Rml::String& content)
+		{
+			auto styleSheet = Rml::Factory::InstanceStyleSheetString(content);
+			auto combined = styleSheet->CombineStyleSheetContainer(*self.GetStyleSheetContainer());
+			self.SetStyleSheetContainer(std::move(combined));
+		}
 	}
 
 	void bind_document(sol::state_view& lua)
@@ -87,6 +94,7 @@ namespace Rml::SolLua
 			"LoadInlineScript", sol::overload(&document::loadInlineScript1, &document::loadInlineScript2, &document::loadInlineScript3),
 			"LoadExternalScript", &SolLuaDocument::LoadExternalScript,
 			"UpdateDocument", &SolLuaDocument::UpdateDocument,
+			"AppendToStyleSheet", &document::appendToStyleSheet,
 
 			// G+S
 			"title", sol::property(&SolLuaDocument::GetTitle, &SolLuaDocument::SetTitle),
