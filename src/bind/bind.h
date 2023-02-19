@@ -30,7 +30,7 @@ struct sol::is_container<Rml::ElementList> : std::true_type {};
 namespace Rml::SolLua
 {
 
-	sol::object makeObjectFromVariant(const Rml::Variant* variant, sol::this_state s);
+	sol::object makeObjectFromVariant(const Rml::Variant* variant, sol::state_view s);
 	using SolObjectMap = std::unordered_map<std::string, sol::object>;
 
 } // end namespace Rml::SolLua

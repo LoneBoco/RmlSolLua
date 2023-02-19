@@ -10,7 +10,7 @@ namespace Rml::SolLua
 
 	namespace functions
 	{
-		bool hasAttribute(auto& self, const std::string& name)
+		constexpr bool hasAttribute(auto& self, const std::string& name)
 		{
 			return self.HasAttribute(name);
 		}
@@ -24,20 +24,20 @@ namespace Rml::SolLua
 		}
 		#define GETATTRGETTER(S, N, D) [](S& self) { return functions::getAttributeWithDefault(self, N, D); }
 
-		void setAttribute(auto& self, const std::string& name, const auto& value)
+		constexpr void setAttribute(auto& self, const std::string& name, const auto& value)
 		{
-			if constexpr (std::is_same_v<decltype(value), bool> && name == "checked")
+			if constexpr (std::is_same_v<std::decay_t<decltype(value)>, bool>)
 			{
 				if (value)
-					self.SetAttribute("checked", true);
-				else self.RemoveAttribute("checked");
+					self.SetAttribute(name, true);
+				else self.RemoveAttribute(name);
 			}
 			else
 			{
 				self.SetAttribute(name, value);
 			}
 		}
-		#define SETATTRCAST(S, D) static_cast<void(*)(S&, const std::string&, const D&)>(&functions::setAttribute)
+		#define SETATTR(S, N, D) [](S& self, const D& value) { functions::setAttribute(self, N, value); }
 	}
 
 	namespace options
@@ -132,12 +132,12 @@ namespace Rml::SolLua
 
 		lua.new_usertype<Rml::ElementFormControlInput>("ElementFormControlInput", sol::no_constructor,
 			// G+S
-			"checked", sol::property(HASATTRGETTER(Rml::ElementFormControlInput, "checked"), SETATTRCAST(Rml::ElementFormControlInput, bool)),
-			"maxlength", sol::property(GETATTRGETTER(Rml::ElementFormControlInput, "maxlength", -1), SETATTRCAST(Rml::ElementFormControlInput, int)),
-			"size", sol::property(GETATTRGETTER(Rml::ElementFormControlInput, "size", 20), SETATTRCAST(Rml::ElementFormControlInput, int)),
-			"max", sol::property(GETATTRGETTER(Rml::ElementFormControlInput, "max", 100), SETATTRCAST(Rml::ElementFormControlInput, int)),
-			"min", sol::property(GETATTRGETTER(Rml::ElementFormControlInput, "min", 0), SETATTRCAST(Rml::ElementFormControlInput, int)),
-			"step", sol::property(GETATTRGETTER(Rml::ElementFormControlInput, "step", 1), SETATTRCAST(Rml::ElementFormControlInput, int)),
+			"checked", sol::property(HASATTRGETTER(Rml::ElementFormControlInput, "checked"), SETATTR(Rml::ElementFormControlInput, "checked", bool)),
+			"maxlength", sol::property(GETATTRGETTER(Rml::ElementFormControlInput, "maxlength", -1), SETATTR(Rml::ElementFormControlInput, "maxlength", int)),
+			"size", sol::property(GETATTRGETTER(Rml::ElementFormControlInput, "size", 20), SETATTR(Rml::ElementFormControlInput, "size", int)),
+			"max", sol::property(GETATTRGETTER(Rml::ElementFormControlInput, "max", 100), SETATTR(Rml::ElementFormControlInput, "max", int)),
+			"min", sol::property(GETATTRGETTER(Rml::ElementFormControlInput, "min", 0), SETATTR(Rml::ElementFormControlInput, "min", int)),
+			"step", sol::property(GETATTRGETTER(Rml::ElementFormControlInput, "step", 1), SETATTR(Rml::ElementFormControlInput, "step", int)),
 
 			// B
 			sol::base_classes, sol::bases<Rml::ElementFormControl, Rml::Element>()

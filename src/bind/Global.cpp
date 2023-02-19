@@ -44,10 +44,10 @@ namespace Rml::SolLua
 		}
 	}
 
+	#define _ENUM(N) lua["RmlKeyIdentifier"][#N] = Rml::Input::KI_##N
 
 	void bind_global(sol::state_view& lua)
 	{
-		#define _ENUM(N) lua["RmlKeyIdentifier"][#N] = Rml::Input::KI_##N
 
 		// We can't make this into an enum.
 		// The compiler can't handle everything under one call.
@@ -229,29 +229,29 @@ namespace Rml::SolLua
 		_ENUM(PA1);
 		_ENUM(OEM_CLEAR);
 
-		lua.new_enum("RmlKeyModifier",
-			"CTRL", Rml::Input::KM_CTRL,
-			"SHIFT", Rml::Input::KM_SHIFT,
-			"ALT", Rml::Input::KM_ALT,
-			"META", Rml::Input::KM_META,
-			"CAPSLOCK", Rml::Input::KM_CAPSLOCK,
-			"NUMLOCK", Rml::Input::KM_NUMLOCK,
-			"SCROLLLOCK", Rml::Input::KM_SCROLLLOCK
-		);
-
-		lua.new_enum("RmlFontWeight",
-			"Auto", Rml::Style::FontWeight::Auto,
-			"Normal", Rml::Style::FontWeight::Normal,
-			"Bold", Rml::Style::FontWeight::Bold
-		);
+		lua.new_enum<Rml::Input::KeyModifier>("RmlKeyModifier", {
+			{ "CTRL", Rml::Input::KM_CTRL },
+			{ "SHIFT", Rml::Input::KM_SHIFT },
+			{ "ALT", Rml::Input::KM_ALT },
+			{ "META", Rml::Input::KM_META },
+			{ "CAPSLOCK", Rml::Input::KM_CAPSLOCK },
+			{ "NUMLOCK", Rml::Input::KM_NUMLOCK },
+			{ "SCROLLLOCK", Rml::Input::KM_SCROLLLOCK }
+		});
 
 		//--
-		lua.new_enum("RmlDefaultActionPhase",
-			"None", Rml::DefaultActionPhase::None,
-			"Target", Rml::DefaultActionPhase::Target,
-			"TargetAndBubble", Rml::DefaultActionPhase::TargetAndBubble
-		);
+		lua.new_enum<Rml::Style::FontWeight>("RmlFontWeight", {
+			{ "Auto", Rml::Style::FontWeight::Auto },
+			{ "Normal", Rml::Style::FontWeight::Normal },
+			{ "Bold", Rml::Style::FontWeight::Bold }
+		});
 
+		lua.new_enum<Rml::DefaultActionPhase>("RmlDefaultActionPhase", {
+			{ "None", Rml::DefaultActionPhase::None },
+			{ "Target", Rml::DefaultActionPhase::Target },
+			{ "TargetAndBubble", Rml::DefaultActionPhase::TargetAndBubble }
+		});
+		
 		struct rmlui {};
 
 		auto g = lua.new_usertype<rmlui>("rmlui",
@@ -274,7 +274,12 @@ namespace Rml::SolLua
 		);
 		g.set("key_identifier", sol::readonly_property([&lua] { return lua["RmlKeyIdentifier"]; }));
 		g.set("key_modifier", sol::readonly_property([&lua] { return lua["RmlKeyModifier"]; }));
+		//--
+		g.set("font_weight", sol::readonly_property([&lua] { return lua["RmlFontWeight"]; }));
+		g.set("default_action_phase", sol::readonly_property([&lua] { return lua["RmlDefaultActionPhase"]; }));
 
 	}
+
+	#undef _ENUM
 
 } // end namespace Rml::SolLua

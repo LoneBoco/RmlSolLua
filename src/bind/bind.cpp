@@ -6,7 +6,7 @@
 namespace Rml::SolLua
 {
 
-	sol::object makeObjectFromVariant(const Rml::Variant* variant, sol::this_state s)
+	sol::object makeObjectFromVariant(const Rml::Variant* variant, sol::state_view s)
 	{
 		if (!variant) return sol::make_object(s, sol::nil);
 

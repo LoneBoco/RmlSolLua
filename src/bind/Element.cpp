@@ -57,7 +57,7 @@ namespace Rml::SolLua
 		{
 			SolObjectMap result;
 
-			auto attributes = self.GetAttributes();
+			const auto& attributes = self.GetAttributes();
 			for (auto& [key, value] : attributes)
 			{
 				auto object = makeObjectFromVariant(&value, s);
