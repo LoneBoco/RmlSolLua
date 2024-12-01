@@ -17,27 +17,27 @@ namespace Rml::SolLua
 
 	namespace functions
 	{
-		void addEventListener(Rml::Element& self, const Rml::String& event, sol::protected_function func, const bool in_capture_phase = false)
+		static void addEventListener(Rml::Element& self, const Rml::String& event, sol::protected_function func, const bool in_capture_phase = false)
 		{
 			auto e = new SolLuaEventListener{ func, &self };
 			self.AddEventListener(event, e, in_capture_phase);
 		}
 
-		void addEventListener(Rml::Element& self, const Rml::String& event, const Rml::String& code, sol::this_state s)
+		static void addEventListener(Rml::Element& self, const Rml::String& event, const Rml::String& code, sol::this_state s)
 		{
 			auto state = sol::state_view{ s };
 			auto e = new SolLuaEventListener{ state, code, &self };
 			self.AddEventListener(event, e, false);
 		}
 
-		void addEventListener(Rml::Element& self, const Rml::String& event, const Rml::String& code, sol::this_state s, const bool in_capture_phase)
+		static void addEventListener(Rml::Element& self, const Rml::String& event, const Rml::String& code, sol::this_state s, const bool in_capture_phase)
 		{
 			auto state = sol::state_view{ s };
 			auto e = new SolLuaEventListener{ state, code, &self };
 			self.AddEventListener(event, e, in_capture_phase);
 		}
 
-		auto getAttribute(Rml::Element& self, const Rml::String& name, sol::this_state s)
+		static auto getAttribute(Rml::Element& self, const Rml::String& name, sol::this_state s)
 		{
 			sol::state_view state{ s };
 
@@ -45,21 +45,21 @@ namespace Rml::SolLua
 			return makeObjectFromVariant(attr, s);
 		}
 
-		auto getElementsByTagName(Rml::Element& self, const Rml::String& tag)
+		static auto getElementsByTagName(Rml::Element& self, const Rml::String& tag)
 		{
 			Rml::ElementList result;
 			self.GetElementsByTagName(result, tag);
 			return result;
 		}
 
-		auto getElementsByClassName(Rml::Element& self, const Rml::String& class_name)
+		static auto getElementsByClassName(Rml::Element& self, const Rml::String& class_name)
 		{
 			Rml::ElementList result;
 			self.GetElementsByClassName(result, class_name);
 			return result;
 		}
 
-		auto getAttributes(Rml::Element& self, sol::this_state s)
+		static auto getAttributes(Rml::Element& self, sol::this_state s)
 		{
 			SolObjectMap result;
 
@@ -73,18 +73,23 @@ namespace Rml::SolLua
 			return result;
 		}
 
-		auto getOwnerDocument(Rml::Element& self)
+		static auto getOwnerDocument(Rml::Element& self)
 		{
 			auto document = self.GetOwnerDocument();
 			auto soldocument = dynamic_cast<SolLuaDocument*>(document);
 			return soldocument;
 		}
 
-		auto getQuerySelectorAll(Rml::Element& self, const Rml::String& selector)
+		static auto getQuerySelectorAll(Rml::Element& self, const Rml::String& selector)
 		{
 			Rml::ElementList result;
 			self.QuerySelectorAll(result, selector);
 			return result;
+		}
+
+		static auto getVisible(Rml::Element& self)
+		{
+			return self.IsVisible();
 		}
 	}
 
@@ -105,7 +110,7 @@ namespace Rml::SolLua
 			Rml::PropertiesIteratorView Iterator;
 		};
 
-		auto nextPair(sol::user<StyleProxyIter&> iter_state, sol::this_state s)
+		static auto nextPair(sol::user<StyleProxyIter&> iter_state, sol::this_state s)
 		{
 			StyleProxyIter& iter = iter_state;
 			if (iter.Iterator.AtEnd())
@@ -143,7 +148,7 @@ namespace Rml::SolLua
 			Rml::Element& m_element;
 		};
 
-		auto getElementStyleProxy(Rml::Element& self)
+		static auto getElementStyleProxy(Rml::Element& self)
 		{
 			return StyleProxy{ self };
 		}
@@ -178,7 +183,10 @@ namespace Rml::SolLua
 			"Blur", &Rml::Element::Blur,
 			"Click", &Rml::Element::Click,
 			"DispatchEvent", sol::resolve<bool(const Rml::String&, const Rml::Dictionary&)>(&Rml::Element::DispatchEvent),
-			"Focus", &Rml::Element::Focus,
+			"Focus", sol::overload(
+				&Rml::Element::Focus,
+				[](Rml::Element& self) { self.Focus(true); }
+			),
 			"GetAttribute", &functions::getAttribute,
 			"GetElementById", &Rml::Element::GetElementById,
 			"GetElementsByTagName", &functions::getElementsByTagName,
@@ -204,6 +212,10 @@ namespace Rml::SolLua
 			"GetActivePseudoClasses", &Rml::Element::GetActivePseudoClasses,
 			"IsPointWithinElement", &Rml::Element::IsPointWithinElement,
 			"ProcessDefaultAction", &Rml::Element::ProcessDefaultAction,
+			"IsVisible", sol::overload(
+				&functions::getVisible,
+				&Rml::Element::IsVisible
+			),
 
 			// G+S
 			"class_name", sol::property(&Rml::Element::GetClassNames, &Rml::Element::SetClassNames),
@@ -240,7 +252,7 @@ namespace Rml::SolLua
 			"absolute_top", sol::readonly_property(&Rml::Element::GetAbsoluteTop),
 			"baseline", sol::readonly_property(&Rml::Element::GetBaseline),
 			"line_height", sol::readonly_property(&Rml::Element::GetLineHeight),
-			"visible", sol::readonly_property(&Rml::Element::IsVisible),
+			"visible", sol::readonly_property(&functions::getVisible),
 			"z_index", sol::readonly_property(&Rml::Element::GetZIndex)
 		);
 
