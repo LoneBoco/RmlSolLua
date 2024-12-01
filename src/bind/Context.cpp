@@ -20,7 +20,7 @@ namespace Rml::SolLua
 		/// <summary>
 		/// Return a SolLuaDocument.
 		/// </summary>
-		auto getDocumentBypass(Rml::Context& self, int idx)
+		static auto getDocumentBypass(Rml::Context& self, int idx)
 		{
 			auto document = self.GetDocument(idx);
 			auto result = dynamic_cast<SolLuaDocument*>(document);
@@ -30,7 +30,7 @@ namespace Rml::SolLua
 		/// <summary>
 		/// Return a SolLuaDocument.
 		/// </summary>
-		auto getDocumentBypassString(Rml::Context& self, const Rml::String& name)
+		static auto getDocumentBypassString(Rml::Context& self, const Rml::String& name)
 		{
 			auto document = self.GetDocument(name);
 			return dynamic_cast<SolLuaDocument*>(document);
@@ -39,7 +39,7 @@ namespace Rml::SolLua
 		/// <summary>
 		/// Helper function to fill the indexed table with data.
 		/// </summary>
-		auto getDocument(Rml::Context& self)
+		static auto getDocument(Rml::Context& self)
 		{
 			std::function<SolLuaDocument* (int)> result = [&self](int idx) -> auto { return getDocumentBypass(self, idx); };
 			return result;
@@ -53,7 +53,7 @@ namespace Rml::SolLua
 		/// </summary>
 		/// <param name="data">The data model container.</param>
 		/// <param name="table">The table to bind.</param>
-		void bindTable(SolLuaDataModel* data, sol::table& table)
+		static void bindTable(SolLuaDataModel* data, sol::table& table)
 		{
 			for (auto& [key, value] : table)
 			{
@@ -93,7 +93,7 @@ namespace Rml::SolLua
 		/// <param name="model">The table to bind as the data model.</param>
 		/// <param name="s">Lua state.</param>
 		/// <returns>A unique pointer to a Sol Lua Data Model.</returns>
-		std::unique_ptr<SolLuaDataModel> openDataModel(Rml::Context& self, const Rml::String& name, sol::object model, sol::this_state s)
+		static std::unique_ptr<SolLuaDataModel> openDataModel(Rml::Context& self, const Rml::String& name, sol::object model, sol::this_state s)
 		{
 			sol::state_view lua{ s };
 
@@ -126,12 +126,12 @@ namespace Rml::SolLua
 
 	namespace element
 	{
-		auto getElementAtPoint1(Rml::Context& self, Rml::Vector2f point)
+		static auto getElementAtPoint1(Rml::Context& self, Rml::Vector2f point)
 		{
 			return self.GetElementAtPoint(point);
 		}
 
-		auto getElementAtPoint2(Rml::Context& self, Rml::Vector2f point, Rml::Element& ignore)
+		static auto getElementAtPoint2(Rml::Context& self, Rml::Vector2f point, Rml::Element& ignore)
 		{
 			return self.GetElementAtPoint(point, &ignore);
 		}
@@ -160,7 +160,7 @@ namespace Rml::SolLua
 			"ProcessMouseMove", &Rml::Context::ProcessMouseMove,
 			"ProcessMouseButtonDown", &Rml::Context::ProcessMouseButtonDown,
 			"ProcessMouseButtonUp", &Rml::Context::ProcessMouseButtonUp,
-			"ProcessMouseWheel", &Rml::Context::ProcessMouseWheel,
+			"ProcessMouseWheel", sol::resolve<bool(float, int)>(&Rml::Context::ProcessMouseWheel),
 			"ProcessMouseLeave", &Rml::Context::ProcessMouseLeave,
 			"IsMouseInteracting", &Rml::Context::IsMouseInteracting,
 			"ProcessKeyDown", &Rml::Context::ProcessKeyDown,
