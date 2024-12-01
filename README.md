@@ -5,7 +5,7 @@ Generate bindings for [RmlUi](https://github.com/mikke89/RmlUi) using [sol3](htt
 
 **RmlUi**'s built-in Lua plugin only supports Lua 5.2 and up.  This project leverages the **sol3** library to generate bindings that are compatible with Lua versions 5.1+ (and LuaJIT 2.1+ and MoonJIT).  **RmlSolLua** also extends the base Lua implementation with many new bindings.
 
-This project requires C++17.
+This project requires C++20.
 
 ## Usage
 

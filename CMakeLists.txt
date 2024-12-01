@@ -1,18 +1,25 @@
-﻿# CMakeList.txt : CMake project for RmlSolLua, include source and define
-# project specific logic here.
-#
-cmake_minimum_required (VERSION 3.13)
+﻿cmake_minimum_required(VERSION 3.17)
 
-project ("RmlSolLua")
+project(RmlSolLua VERSION 1.0.0 DESCRIPTION "" LANGUAGES CXX)
+add_library(RmlSolLua STATIC)
 
-set (CMAKE_CXX_STANDARD 17)
+# C++20 mode.
+target_compile_features(RmlSolLua PUBLIC cxx_std_20)
+set_target_properties(RmlSolLua PROPERTIES CXX_EXTENSIONS OFF)
+if(MSVC)
+	if(MSVC_VERSION GREATER_EQUAL 1910)
+		target_compile_options(RmlSolLua PUBLIC "/permissive-")
+	endif()
+	if(MSVC_VERSION GREATER_EQUAL 1914)
+		target_compile_options(RmlSolLua PUBLIC "/Zc:__cplusplus")
+	endif()
+	if(MSVC_VERSION GREATER_EQUAL 1925)
+		target_compile_options(RmlSolLua PUBLIC "/Zc:preprocessor")
+	endif()
+endif()
 
 # Add source to this project's executable.
-add_library (RmlSolLua STATIC)
-
-find_library (RmlCore HINTS dependencies/RmlUi)
-
-target_sources (RmlSolLua
+target_sources(RmlSolLua
 	PRIVATE
 		"include/RmlSolLua/RmlSolLua.h"
 		"src/RmlSolLua.cpp"
@@ -44,14 +51,11 @@ target_sources (RmlSolLua
 		"include/RmlSolLua/RmlSolLua.h"
 )
 
-target_include_directories (RmlSolLua
-	PRIVATE
-		${PROJECT_SOURCE_DIR}src/
-		${PROJECT_SOURCE_DIR}include/
+target_sources(RmlSolLua PUBLIC FILE_SET HEADERS BASE_DIRS .)
+target_include_directories(RmlSolLua
+	PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/src/"
+	PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include/")
 
-	PUBLIC
-		${PROJECT_SOURCE_DIR}include/
-)
 
 
 # TODO: Add tests and install targets if needed.

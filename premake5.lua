@@ -3,7 +3,7 @@ workspace "RmlSolLua"
 	platforms { "x32", "x64" }
 	symbols "On"
 
-	cppdialect "C++17"
+	cppdialect "C++20"
 
 	filter "configurations:Debug"
 		defines { "DEBUG", "_DEBUG" }
