@@ -10,14 +10,14 @@ namespace Rml::SolLua
 	using ColourbTuple = std::tuple<Rml::byte, Rml::byte, Rml::byte, Rml::byte>;
 	using ColourfTuple = std::tuple<float, float, float, float>;
 
-	template <typename T, int A>
-	std::tuple<T,T,T,T> getRGBA(Rml::Colour<T, A>& self)
+	template <typename T, int Alpha, bool PremultipliedAlpha>
+	std::tuple<T,T,T,T> getRGBA(Rml::Colour<T, Alpha, PremultipliedAlpha>& self)
 	{
 		return std::tuple<T,T,T,T>(self.red, self.green, self.blue, self.alpha);
 	}
 
-	template <typename T, int A>
-	void setRGBA(Rml::Colour<T, A>& self, std::tuple<T,T,T,T> color)
+	template <typename T, int Alpha, bool PremultipliedAlpha>
+	void setRGBA(Rml::Colour<T, Alpha, PremultipliedAlpha>& self, std::tuple<T,T,T,T> color)
 	{
 		sol::tie(self.red, self.green, self.blue, self.alpha) = color;
 	}
