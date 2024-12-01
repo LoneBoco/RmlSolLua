@@ -10,21 +10,21 @@ namespace Rml::SolLua
 
 	namespace functions
 	{
-		constexpr bool hasAttribute(auto& self, const std::string& name)
+		static inline constexpr bool hasAttribute(auto& self, const std::string& name)
 		{
 			return self.HasAttribute(name);
 		}
 		#define HASATTRGETTER(S, N) [](S& self) { return self.HasAttribute(N); }
 
 		template <typename T>
-		T getAttributeWithDefault(auto& self, const std::string& name, T def)
+		static inline constexpr T getAttributeWithDefault(auto& self, const std::string& name, T def)
 		{
 			auto attr = self.GetAttribute<T>(name, def);
 			return attr;
 		}
 		#define GETATTRGETTER(S, N, D) [](S& self) { return functions::getAttributeWithDefault(self, N, D); }
 
-		constexpr void setAttribute(auto& self, const std::string& name, const auto& value)
+		static inline constexpr void setAttribute(auto& self, const std::string& name, const auto& value)
 		{
 			if constexpr (std::is_same_v<std::decay_t<decltype(value)>, bool>)
 			{
@@ -77,7 +77,7 @@ namespace Rml::SolLua
 			Rml::ElementFormControlSelect& m_element;
 		};
 
-		auto getOptionsProxy(Rml::ElementFormControlSelect& self)
+		static inline auto getOptionsProxy(Rml::ElementFormControlSelect& self)
 		{
 			return SelectOptionsProxy{ self };
 		}
@@ -85,17 +85,17 @@ namespace Rml::SolLua
 
 	namespace submit
 	{
-		void submit(Rml::ElementForm& self)
+		static void submit(Rml::ElementForm& self)
 		{
 			self.Submit();
 		}
 
-		void submitName(Rml::ElementForm& self, const std::string& name)
+		static void submitName(Rml::ElementForm& self, const std::string& name)
 		{
 			self.Submit(name);
 		}
 
-		void submitNameValue(Rml::ElementForm& self, const std::string& name, const std::string& value)
+		static void submitNameValue(Rml::ElementForm& self, const std::string& name, const std::string& value)
 		{
 			self.Submit(name, value);
 		}
@@ -174,16 +174,6 @@ namespace Rml::SolLua
 
 			// B
 			sol::base_classes, sol::bases<Rml::ElementFormControl, Rml::Element>()
-		);
-
-		///////////////////////////
-
-		lua.new_usertype<Rml::ElementFormControlDataSelect>("ElementFormControlDataSelect", sol::no_constructor,
-			// M
-			"SetDataSource", &Rml::ElementFormControlDataSelect::SetDataSource,
-
-			// B
-			sol::base_classes, sol::bases<Rml::ElementFormControlSelect, Rml::ElementFormControl, Rml::Element>()
 		);
 
 		///////////////////////////
