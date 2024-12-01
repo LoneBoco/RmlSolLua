@@ -179,8 +179,6 @@ namespace Rml::SolLua
 			// G+S
 			"dimensions", sol::property(&Rml::Context::GetDimensions, &Rml::Context::SetDimensions),
 			"dp_ratio", sol::property(&Rml::Context::GetDensityIndependentPixelRatio, &Rml::Context::SetDensityIndependentPixelRatio),
-			//--
-			"clip_region", sol::property(&Rml::Context::GetActiveClipRegion, &Rml::Context::SetActiveClipRegion),
 
 			// G
 			"documents", sol::readonly_property(&getIndexedTable<SolLuaDocument, Rml::Context, &document::getDocument, &Rml::Context::GetNumDocuments>),
