@@ -5,6 +5,7 @@
 
 namespace Rml::SolLua
 {
+	SolLuaDataModel::SolLuaDataModel(sol::state_view s) : Lua{ s } {}
 
 	SolLuaObjectDef::SolLuaObjectDef(SolLuaDataModel* model)
 		: VariableDefinition(DataVariableType::Scalar), m_model(model)
