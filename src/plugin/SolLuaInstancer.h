@@ -3,7 +3,7 @@
 #include <RmlUi/Core/ElementInstancer.h>
 #include <RmlUi/Core/EventListenerInstancer.h>
 
-#include <sol/sol.hpp>
+#include <sol.hpp>
 
 
 namespace Rml::SolLua

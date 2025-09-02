@@ -2,7 +2,7 @@
 
 #include <RmlUi/Core/Types.h>
 #include <RmlUi/Core/EventListener.h>
-#include <sol/sol.hpp>
+#include <sol.hpp>
 
 
 namespace Rml

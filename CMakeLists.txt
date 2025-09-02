@@ -46,12 +46,14 @@ target_sources (RmlSolLua
 
 target_include_directories (RmlSolLua
 	PRIVATE
-		${PROJECT_SOURCE_DIR}src/
-		${PROJECT_SOURCE_DIR}include/
+		${PROJECT_SOURCE_DIR}/src/
 
 	PUBLIC
-		${PROJECT_SOURCE_DIR}include/
+		${PROJECT_SOURCE_DIR}/include/
+		${SOL_INCLUDE_DIR}
 )
+
+target_link_libraries(RmlSolLua PUBLIC RmlUi::Core)
 
 
 # TODO: Add tests and install targets if needed.

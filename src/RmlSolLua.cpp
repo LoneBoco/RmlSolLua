@@ -1,6 +1,6 @@
 ﻿#include "RmlSolLua/RmlSolLua.h"
 
-#include <sol/sol.hpp>
+#include <sol.hpp>
 #include <RmlUi/Core.h>
 
 #include "bind/bind.h"

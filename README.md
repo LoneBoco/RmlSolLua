@@ -11,7 +11,7 @@ This project requires C++17.
 
 ```c++
 #include <RmlUi/RmlUi.h>
-#include <sol/sol.hpp>
+#include <sol.hpp>
 #include <RmlSolLua/RmlSolLua.h>
 
 int main()

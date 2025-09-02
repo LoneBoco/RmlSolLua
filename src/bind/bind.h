@@ -1,7 +1,7 @@
 #pragma once
 
 #include <RmlUi/Core.h>
-#include <sol/sol.hpp>
+#include <sol.hpp>
 
 #include <type_traits>
 
