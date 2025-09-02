@@ -8,7 +8,7 @@
 #include <RmlUi/Lua/Header.h>
 #include <RmlUi/Core/Plugin.h>
 #include <RmlUi/Core/Platform.h>
-#include <sol/sol.hpp>
+#include <sol.hpp>
 
 #include <memory>
 

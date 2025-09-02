@@ -2,7 +2,7 @@
 
 #include <RmlUi/Core/ElementDocument.h>
 
-#include <sol/sol.hpp>
+#include <sol.hpp>
 
 
 namespace Rml::SolLua

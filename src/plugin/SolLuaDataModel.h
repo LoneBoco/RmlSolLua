@@ -8,7 +8,7 @@
 #include <RmlUi/Core/Variant.h>
 #include <RmlUi/Core/DataTypes.h>
 
-#include <sol/sol.hpp>
+#include <sol.hpp>
 
 
 namespace Rml::SolLua
