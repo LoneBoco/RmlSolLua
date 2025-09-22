@@ -49,16 +49,53 @@ int main()
 
 > ##### Note
 > **RmlSolLua** does not manage your **sol3** `sol::state`.  You must ensure it stays in scope until after the call to `Rml::Shutdown`.
->
-> **RmlUi 5.0** has a use-after-free bug with plugin shutdown that involves plugins that monitor `Rml::Element` creation and deletion (like the Debugger plugin).  To avoid a crash, you must either initialize RmlSolLua LAST (after Debugger), or call the `collect_garbage` function on your Lua state right before you shut down **RmlUi**.
 
 ## Coverage
 
-**RmlSolLua** contains all the **RmlUi 5.0** Lua bindings EXCEPT:
+**RmlSolLua** contains all the **RmlUi 6.0** Lua bindings EXCEPT:
 - custom element instancing
 - datagrid sources and formatters
 
-**RmlSolLua** contains many extra Lua bindings not covered by **RmlUi 5.0**.  There are too many to list, but they can be found in the bindings under `src/bind/*.cpp` below any `//--` comments.  Any binding not covered by **RmlUi**'s base Lua bindings are kept separate to be easily identified.
+**RmlSolLua** contains many extra Lua bindings not covered by **RmlUi**.  There are too many to list, but they can be found in the bindings under `src/bind/*.cpp` below any `//--` comments.  Any binding not covered by **RmlUi**'s base Lua bindings are kept separate to be easily identified.
+
+## Previous Versions
+
+**RmlSolLua** supports **RmlUi 5.0** and up.
+Check the branches for support for older versions of **RmlUi**.
+
+## CMake Example
+
+This is just an example of how to consume **RmlSolLua** in your own CMake project as a static library.
+
+```cmake
+include(FetchContent)
+set(FETCHCONTENT_TRY_FIND_PACKAGE_MODE ALWAYS)
+
+# Dependency: Lua.
+find_package(Lua REQUIRED)
+target_include_directories(main PRIVATE ${LUA_INCLUDE_DIR})
+target_link_libraries(main PRIVATE ${LUA_LIBRARIES})
+
+# Dependency: sol3.
+set(SOL2_LUA_VERSION "5.4")
+find_package(sol2 CONFIG REQUIRED)
+target_link_libraries(main PRIVATE sol2)
+
+# Dependency: RmlUi.
+add_compile_definitions(RMLUI_STATIC_LIB)
+find_package(RmlUi CONFIG REQUIRED)
+target_link_libraries(main PRIVATE RmlUi::RmlUi)
+
+# Dependency: RmlSolLua.
+FetchContent_Declare(RmlSolLua
+	GIT_REPOSITORY https://github.com/LoneBoco/RmlSolLua.git
+	GIT_TAG rmlui-6.0
+	GIT_SHALLOW TRUE
+	OVERRIDE_FIND_PACKAGE)
+FetchContent_MakeAvailable(RmlSolLua)
+target_include_directories(main PUBLIC "${RmlSolLua_SOURCE_DIR}/include")
+target_link_libraries(main PRIVATE RmlSolLua)
+```
 
 ## License
 
