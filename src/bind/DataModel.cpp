@@ -1,6 +1,7 @@
-#include "bind.h"
+#include <string>
 
-#include "plugin/SolLuaDocument.h"
+#include <sol/sol.hpp>
+
 #include "plugin/SolLuaDataModel.h"
 
 

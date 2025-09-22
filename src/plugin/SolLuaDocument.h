@@ -1,8 +1,7 @@
 #pragma once
 
-#include <RmlUi/Core/ElementDocument.h>
-
-#include <sol.hpp>
+#include <RmlUi/Core.h>
+#include <sol/sol.hpp>
 
 
 namespace Rml::SolLua

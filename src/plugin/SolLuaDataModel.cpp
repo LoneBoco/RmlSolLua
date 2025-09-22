@@ -1,6 +1,9 @@
-#include "SolLuaDataModel.h"
+#include <string>
 
-#include <optional>
+#include <RmlUi/Core.h>
+#include <sol/sol.hpp>
+
+#include "SolLuaDataModel.h"
 
 
 namespace Rml::SolLua

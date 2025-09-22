@@ -1,7 +1,9 @@
-#include "SolLuaInstancer.h"
+#include <RmlUi/Core.h>
+#include <sol/sol.hpp>
 
-#include "SolLuaDocument.h"
-#include "SolLuaEventListener.h"
+#include "plugin/SolLuaInstancer.h"
+#include "plugin/SolLuaDocument.h"
+#include "plugin/SolLuaEventListener.h"
 
 
 namespace Rml::SolLua

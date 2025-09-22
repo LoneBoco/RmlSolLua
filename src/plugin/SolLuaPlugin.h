@@ -3,14 +3,12 @@
 
 #pragma once
 
-#include "RmlSolLua/RmlSolLua.h"
-
-#include <RmlUi/Lua/Header.h>
-#include <RmlUi/Core/Plugin.h>
-#include <RmlUi/Core/Platform.h>
-#include <sol.hpp>
-
 #include <memory>
+
+#include <RmlUi/Core.h>
+#include <sol/sol.hpp>
+
+#include "RmlSolLua/RmlSolLua.h"
 
 
 namespace Rml::SolLua

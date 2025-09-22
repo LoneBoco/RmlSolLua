@@ -1,9 +1,10 @@
-﻿#include "SolLuaPlugin.h"
+﻿#include <memory>
+
+#include <RmlUi/Core.h>
+#include <sol/sol.hpp>
 
 #include "SolLuaInstancer.h"
-
-#include "bind/bind.h"
-
+#include "SolLuaPlugin.h"
 
 
 namespace Rml::SolLua

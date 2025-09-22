@@ -1,0 +1,88 @@
+# Visual Studio generated .editorconfig file with C++ settings.
+root = true
+
+[*.{c++,cc,cpp,cppm,cxx,h,h++,hh,hpp,hxx,inl,ipp,ixx,tlh,tli}]
+
+# Visual C++ Code Style settings
+
+cpp_generate_documentation_comments = doxygen_triple_slash
+
+# Visual C++ Formatting settings
+
+indent_style = tab
+indent_size = 4
+tab_width= 4
+cpp_indent_braces = false
+cpp_indent_multi_line_relative_to = outermost_parenthesis
+cpp_indent_within_parentheses = indent
+cpp_indent_preserve_within_parentheses = false
+cpp_indent_case_contents = true
+cpp_indent_case_labels = true
+cpp_indent_case_contents_when_block = false
+cpp_indent_lambda_braces_when_parameter = false
+cpp_indent_goto_labels = one_left
+cpp_indent_preprocessor = leftmost_column
+cpp_indent_access_specifiers = false
+cpp_indent_namespace_contents = false
+cpp_indent_preserve_comments = false
+cpp_new_line_before_open_brace_namespace = new_line
+cpp_new_line_before_open_brace_type = new_line
+cpp_new_line_before_open_brace_function = new_line
+cpp_new_line_before_open_brace_block = new_line
+cpp_new_line_before_open_brace_lambda = new_line
+cpp_new_line_scope_braces_on_separate_lines = true
+cpp_new_line_close_brace_same_line_empty_type = false
+cpp_new_line_close_brace_same_line_empty_function = false
+cpp_new_line_before_catch = true
+cpp_new_line_before_else = true
+cpp_new_line_before_while_in_do_while = true
+cpp_space_before_function_open_parenthesis = remove
+cpp_space_within_parameter_list_parentheses = false
+cpp_space_between_empty_parameter_list_parentheses = false
+cpp_space_after_keywords_in_control_flow_statements = true
+cpp_space_within_control_flow_statement_parentheses = false
+cpp_space_before_lambda_open_parenthesis = false
+cpp_space_within_cast_parentheses = false
+cpp_space_after_cast_close_parenthesis = false
+cpp_space_within_expression_parentheses = false
+cpp_space_before_block_open_brace = true
+cpp_space_between_empty_braces = false
+cpp_space_before_initializer_list_open_brace = false
+cpp_space_within_initializer_list_braces = true
+cpp_space_preserve_in_initializer_list = true
+cpp_space_before_open_square_bracket = false
+cpp_space_within_square_brackets = false
+cpp_space_before_empty_square_brackets = false
+cpp_space_between_empty_square_brackets = false
+cpp_space_group_square_brackets = true
+cpp_space_within_lambda_brackets = false
+cpp_space_between_empty_lambda_brackets = false
+cpp_space_before_comma = false
+cpp_space_after_comma = true
+cpp_space_remove_around_member_operators = true
+cpp_space_before_inheritance_colon = true
+cpp_space_before_constructor_colon = true
+cpp_space_remove_before_semicolon = true
+cpp_space_after_semicolon = true
+cpp_space_remove_around_unary_operator = true
+cpp_space_around_binary_operator = insert
+cpp_space_around_assignment_operator = insert
+cpp_space_pointer_reference_alignment = left
+cpp_space_around_ternary_operator = insert
+cpp_use_unreal_engine_macro_formatting = true
+cpp_wrap_preserve_blocks = one_liners
+
+# Visual C++ Include Cleanup settings
+
+cpp_include_cleanup_add_missing_error_tag_type = suggestion
+cpp_include_cleanup_excluded_files = corecrt.h
+cpp_include_cleanup_required_files = SolLuaPlugin.h:SolLuaInstancer.h,SolLuaDocument.h:Context.h
+cpp_include_cleanup_replacement_files = RmlUi/Config/Config.h:RmlUi/Core.h,RmlUi/Core/Colour.h:RmlUi/Core.h,RmlUi/Core/Context.h:RmlUi/Core.h,RmlUi/Core/Core.h:RmlUi/Core.h,RmlUi/Core/DataModelHandle.h:RmlUi/Core.h,RmlUi/Core/DataTypes.h:RmlUi/Core.h,RmlUi/Core/DataVariable.h:RmlUi/Core.h,RmlUi/Core/Element.h:RmlUi/Core.h,RmlUi/Core/ElementDocument.h:RmlUi/Core.h,RmlUi/Core/ElementInstancer.h:RmlUi/Core.h,RmlUi/Core/Elements/ElementForm.h:RmlUi/Core.h,RmlUi/Core/Elements/ElementFormControl.h:RmlUi/Core.h,RmlUi/Core/Elements/ElementFormControlInput.h:RmlUi/Core.h,RmlUi/Core/Elements/ElementFormControlSelect.h:RmlUi/Core.h,RmlUi/Core/Elements/ElementFormControlTextArea.h:RmlUi/Core.h,RmlUi/Core/Elements/ElementProgress.h:RmlUi/Core.h,RmlUi/Core/Elements/ElementTabSet.h:RmlUi/Core.h,RmlUi/Core/ElementText.h:RmlUi/Core.h,RmlUi/Core/Event.h:RmlUi/Core.h,RmlUi/Core/EventListener.h:RmlUi/Core.h,RmlUi/Core/EventListenerInstancer.h:RmlUi/Core.h,RmlUi/Core/Factory.h:RmlUi/Core.h,RmlUi/Core/ID.h:RmlUi/Core.h,RmlUi/Core/Input.h:RmlUi/Core.h,RmlUi/Core/Log.h:RmlUi/Core.h,RmlUi/Core/Math.h:RmlUi/Core.h,RmlUi/Core/Plugin.h:RmlUi/Core.h,RmlUi/Core/PropertiesIteratorView.h:RmlUi/Core.h,RmlUi/Core/StyleSheet.h:RmlUi/Core.h,RmlUi/Core/StyleSheetContainer.h:RmlUi/Core.h,RmlUi/Core/StyleTypes.h:RmlUi/Core.h,RmlUi/Core/TypeConverter.h:RmlUi/Core.h,RmlUi/Core/Types.h:RmlUi/Core.h,RmlUi/Core/Variant.h:RmlUi/Core.h,RmlUi/Core/Vector2.h:RmlUi/Core.h,sol/as_args.hpp:sol/sol.hpp,sol/environment.hpp:sol/sol.hpp,sol/error.hpp:sol/sol.hpp,sol/forward.hpp:sol/sol.hpp,sol/in_place.hpp:sol/sol.hpp,sol/inheritance.hpp:sol/sol.hpp,sol/object.hpp:sol/sol.hpp,sol/overload.hpp:sol/sol.hpp,sol/property.hpp:sol/sol.hpp,sol/protected_function_result.hpp:sol/sol.hpp,sol/raii.hpp:sol/sol.hpp,sol/resolve.hpp:sol/sol.hpp,sol/state_view.hpp:sol/sol.hpp,sol/tie.hpp:sol/sol.hpp,sol/types.hpp:sol/sol.hpp,sol/variadic_args.hpp:sol/sol.hpp
+cpp_include_cleanup_remove_unused_error_tag_type = dimmed
+cpp_include_cleanup_optimize_unused_error_tag_type = suggestion
+cpp_include_cleanup_sort_after_edits = false
+cpp_sort_includes_error_tag_type = none
+cpp_sort_includes_priority_case_sensitive = false
+cpp_sort_includes_priority_style = quoted
+cpp_includes_style = default
+cpp_includes_use_forward_slash = true

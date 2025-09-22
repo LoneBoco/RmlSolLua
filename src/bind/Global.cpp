@@ -1,3 +1,8 @@
+#include <functional>
+
+#include <RmlUi/Core.h>
+#include <sol/sol.hpp>
+
 #include "bind.h"
 
 

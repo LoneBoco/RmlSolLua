@@ -1,9 +1,7 @@
 #pragma once
 
-#include <RmlUi/Core/ElementInstancer.h>
-#include <RmlUi/Core/EventListenerInstancer.h>
-
-#include <sol.hpp>
+#include <RmlUi/Core.h>
+#include <sol/sol.hpp>
 
 
 namespace Rml::SolLua

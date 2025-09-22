@@ -1,4 +1,7 @@
-#include "bind.h"
+#include <utility>
+
+#include <RmlUi/Core.h>
+#include <sol/sol.hpp>
 
 #include "plugin/SolLuaDocument.h"
 

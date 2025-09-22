@@ -1,0 +1,17 @@
+{
+  "dependencies": [
+    "pkgconf",
+    {
+      "name": "rmlui",
+      "version>=": "5.0"
+    },
+    "sol2",
+    "lua"
+  ],
+  "overrides": [
+    {
+      "name": "rmlui",
+      "version": "5.0"
+    }
+  ]
+}

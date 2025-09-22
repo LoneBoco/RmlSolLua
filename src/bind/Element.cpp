@@ -1,9 +1,15 @@
-#include "bind.h"
+#include <functional>
+#include <string>
+#include <tuple>
+#include <unordered_map>
+#include <utility>
 
+#include <RmlUi/Core.h>
+#include <sol/sol.hpp>
+
+#include "bind.h"
 #include "plugin/SolLuaDocument.h"
 #include "plugin/SolLuaEventListener.h"
-
-#include <unordered_map>
 
 
 namespace Rml::SolLua

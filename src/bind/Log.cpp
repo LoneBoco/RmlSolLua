@@ -1,4 +1,7 @@
-#include "bind.h"
+#include <string>
+
+#include <RmlUi/Core.h>
+#include <sol/sol.hpp>
 
 
 namespace Rml::SolLua

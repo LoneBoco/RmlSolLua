@@ -1,16 +1,18 @@
 ﻿#include "RmlSolLua/RmlSolLua.h"
 
-#include <sol.hpp>
 #include <RmlUi/Core.h>
+#include <sol/sol.hpp>
 
 #include "bind/bind.h"
 #include "plugin/SolLuaPlugin.h"
+#include "plugin/SolLuaInstancer.h"
+#include "RmlSolLua/RmlSolLua.h"
 
 
 namespace Rml::SolLua
 {
 
-    void Initialise(sol::state_view* state)
+    RMLUILUA_API void Initialise(sol::state_view* state)
     {
         if (state != nullptr)
         {
@@ -19,7 +21,7 @@ namespace Rml::SolLua
         }
     }
 
-    void Initialise(sol::state_view* state, const Rml::String& lua_environment_identifier)
+    RMLUILUA_API void Initialise(sol::state_view* state, const Rml::String& lua_environment_identifier)
     {
         if (state != nullptr)
         {
@@ -28,17 +30,17 @@ namespace Rml::SolLua
         }
     }
 
-    void Initialize(sol::state_view* state)
+    RMLUILUA_API void Initialize(sol::state_view* state)
     {
         Initialise(state);
     }
 
-    void Initialize(sol::state_view* state, const Rml::String& lua_environment_identifier)
+    RMLUILUA_API void Initialize(sol::state_view* state, const Rml::String& lua_environment_identifier)
     {
         Initialise(state, lua_environment_identifier);
     }
 
-    void RegisterLua(sol::state_view* state)
+    RMLUILUA_API void RegisterLua(sol::state_view* state)
     {
         bind_color(*state);
         bind_context(*state);

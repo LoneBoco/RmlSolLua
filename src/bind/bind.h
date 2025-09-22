@@ -1,9 +1,15 @@
 #pragma once
 
-#include <RmlUi/Core.h>
-#include <sol.hpp>
-
+#include <algorithm>
+#include <cassert>
+#include <functional>
+#include <iterator>
+#include <string>
 #include <type_traits>
+#include <unordered_map>
+
+#include <RmlUi/Core.h>
+#include <sol/sol.hpp>
 
 
 #ifndef RMLUI_NO_THIRDPARTY_CONTAINERS

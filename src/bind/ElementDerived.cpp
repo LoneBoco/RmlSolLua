@@ -1,8 +1,7 @@
-#include "bind.h"
+#include <RmlUi/Core.h>
+#include <sol/sol.hpp>
 
-#include "plugin/SolLuaEventListener.h"
-
-#include <unordered_map>
+#include "bind/bind.h"
 
 
 namespace Rml::SolLua

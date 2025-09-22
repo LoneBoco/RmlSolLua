@@ -1,6 +1,9 @@
-#include "bind.h"
+#include <cstdint>
 
-#include <functional>
+#include <RmlUi/Core.h>
+#include <sol/sol.hpp>
+
+#include "bind.h"
 
 
 namespace Rml::SolLua

@@ -1,14 +1,12 @@
-#include "SolLuaEventListener.h"
-
-#include "plugin/SolLuaDocument.h"
-
-#include <RmlUi/Core/Element.h>
-#include <RmlUi/Core/Log.h>
-#include <RmlUi/Core/Context.h>
-#include <RmlUi/Core/ElementDocument.h>
-
+#include <algorithm>
 #include <string>
-//#include <format>
+#include <utility>
+
+#include <RmlUi/Core.h>
+#include <sol/sol.hpp>
+
+#include "SolLuaDocument.h"
+#include "SolLuaEventListener.h"
 
 
 namespace Rml::SolLua

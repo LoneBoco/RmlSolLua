@@ -1,8 +1,7 @@
-#include "SolLuaDocument.h"
+#include <RmlUi/Core.h>
+#include <sol/sol.hpp>
 
-#include <RmlUi/Core/Stream.h>
-#include <RmlUi/Core/Log.h>
-#include <RmlUi/Core/Context.h>
+#include "SolLuaDocument.h"
 
 
 namespace Rml::SolLua

@@ -1,8 +1,7 @@
 #pragma once
 
-#include <RmlUi/Core/Types.h>
-#include <RmlUi/Core/EventListener.h>
-#include <sol.hpp>
+#include <RmlUi/Core.h>
+#include <sol/sol.hpp>
 
 
 namespace Rml

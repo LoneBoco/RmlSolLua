@@ -1,9 +1,15 @@
-#include "bind.h"
+#include <functional>
+#include <memory>
+#include <string>
+#include <utility>
+#include <vector>
 
+#include <RmlUi/Core.h>
+#include <sol/sol.hpp>
+
+#include "bind.h"
 #include "plugin/SolLuaDocument.h"
 #include "plugin/SolLuaDataModel.h"
-
-#include <memory>
 
 
 namespace Rml::SolLua

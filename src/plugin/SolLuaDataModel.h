@@ -1,14 +1,11 @@
 #pragma once
 
 #include <memory>
+#include <string>
 #include <unordered_map>
 
-#include <RmlUi/Core/DataModelHandle.h>
-#include <RmlUi/Core/DataVariable.h>
-#include <RmlUi/Core/Variant.h>
-#include <RmlUi/Core/DataTypes.h>
-
-#include <sol.hpp>
+#include <RmlUi/Core.h>
+#include <sol/sol.hpp>
 
 
 namespace Rml::SolLua

@@ -1,8 +1,10 @@
-#include "bind.h"
+#include <string>
+#include <type_traits>
+#include <utility>
+#include <vector>
 
-#include "plugin/SolLuaEventListener.h"
-
-#include <unordered_map>
+#include <RmlUi/Core.h>
+#include <sol/sol.hpp>
 
 
 namespace Rml::SolLua
