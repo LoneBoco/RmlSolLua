@@ -6,7 +6,7 @@ cmake_policy(SET CMP0077 NEW)	# CMP0077: option() honors normal variables.
 cmake_policy(SET CMP0091 NEW)	# CMP0091: MSVC runtime library flags are selected by an abstraction.
 cmake_policy(SET CMP0144 NEW)	# CMP0144: Also search <PACKAGENAME>_ROOT as well as <PackageName>_ROOT.
 
-project(RmlSolLua VERSION 5.1.0 DESCRIPTION "" LANGUAGES CXX)
+project(RmlSolLua VERSION 6.0.0 DESCRIPTION "" LANGUAGES CXX)
 add_library(RmlSolLua STATIC)
 
 # C++20 mode.
@@ -65,7 +65,7 @@ target_compile_definitions(RmlSolLua PRIVATE "RmlLua_EXPORTS")
 
 # RmlUI
 find_package(RmlUi CONFIG REQUIRED)
-target_link_libraries(RmlSolLua PUBLIC RmlCore)
+target_link_libraries(RmlSolLua PUBLIC RmlUi::Core)
 
 # Sol2
 find_package(sol2 CONFIG REQUIRED)

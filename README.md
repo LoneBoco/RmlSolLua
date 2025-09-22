@@ -1,4 +1,4 @@
-RmlSolLua 5.1
+RmlSolLua 6.0
 ===================
 
 Generate bindings for [RmlUi](https://github.com/mikke89/RmlUi) using [sol3](https://github.com/ThePhD/sol2).
