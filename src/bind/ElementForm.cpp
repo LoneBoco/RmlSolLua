@@ -1,4 +1,5 @@
 #include <string>
+#include <tuple>
 #include <type_traits>
 #include <utility>
 #include <vector>
@@ -12,21 +13,21 @@ namespace Rml::SolLua
 
 	namespace functions
 	{
-		constexpr bool hasAttribute(auto& self, const std::string& name)
+		static inline constexpr bool hasAttribute(auto& self, const std::string& name)
 		{
 			return self.HasAttribute(name);
 		}
 		#define HASATTRGETTER(S, N) [](S& self) { return self.HasAttribute(N); }
 
 		template <typename T>
-		T getAttributeWithDefault(auto& self, const std::string& name, T def)
+		static inline constexpr T getAttributeWithDefault(auto& self, const std::string& name, T def)
 		{
 			auto attr = self.GetAttribute<T>(name, def);
 			return attr;
 		}
 		#define GETATTRGETTER(S, N, D) [](S& self) { return functions::getAttributeWithDefault(self, N, D); }
 
-		constexpr void setAttribute(auto& self, const std::string& name, const auto& value)
+		static inline constexpr void setAttribute(auto& self, const std::string& name, const auto& value)
 		{
 			if constexpr (std::is_same_v<std::decay_t<decltype(value)>, bool>)
 			{
@@ -40,6 +41,17 @@ namespace Rml::SolLua
 			}
 		}
 		#define SETATTR(S, N, D) [](S& self, const D& value) { functions::setAttribute(self, N, value); }
+	}
+
+	namespace input
+	{
+		static auto getSelection(Rml::ElementFormControlInput& self)
+		{
+			int start, end;
+			Rml::String text;
+			self.GetSelection(&start, &end, &text);
+			return std::make_tuple(start, end, text);
+		}
 	}
 
 	namespace options
@@ -79,7 +91,7 @@ namespace Rml::SolLua
 			Rml::ElementFormControlSelect& m_element;
 		};
 
-		auto getOptionsProxy(Rml::ElementFormControlSelect& self)
+		static inline auto getOptionsProxy(Rml::ElementFormControlSelect& self)
 		{
 			return SelectOptionsProxy{ self };
 		}
@@ -87,19 +99,30 @@ namespace Rml::SolLua
 
 	namespace submit
 	{
-		void submit(Rml::ElementForm& self)
+		static void submit(Rml::ElementForm& self)
 		{
 			self.Submit();
 		}
 
-		void submitName(Rml::ElementForm& self, const std::string& name)
+		static void submitName(Rml::ElementForm& self, const std::string& name)
 		{
 			self.Submit(name);
 		}
 
-		void submitNameValue(Rml::ElementForm& self, const std::string& name, const std::string& value)
+		static void submitNameValue(Rml::ElementForm& self, const std::string& name, const std::string& value)
 		{
 			self.Submit(name, value);
+		}
+	}
+
+	namespace textarea
+	{
+		static auto getSelection(Rml::ElementFormControlTextArea& self)
+		{
+			int start, end;
+			Rml::String text;
+			self.GetSelection(&start, &end, &text);
+			return std::make_tuple(start, end, text);
 		}
 	}
 
@@ -133,6 +156,11 @@ namespace Rml::SolLua
 		///////////////////////////
 
 		lua.new_usertype<Rml::ElementFormControlInput>("ElementFormControlInput", sol::no_constructor,
+			//M
+			"Select", &Rml::ElementFormControlInput::Select,
+			"SetSelection", &Rml::ElementFormControlInput::SetSelectionRange,
+			"GetSelection", &input::getSelection,
+
 			// G+S
 			"checked", sol::property(HASATTRGETTER(Rml::ElementFormControlInput, "checked"), SETATTR(Rml::ElementFormControlInput, "checked", bool)),
 			"maxlength", sol::property(GETATTRGETTER(Rml::ElementFormControlInput, "maxlength", -1), SETATTR(Rml::ElementFormControlInput, "maxlength", int)),
@@ -191,6 +219,11 @@ namespace Rml::SolLua
 		///////////////////////////
 
 		lua.new_usertype<Rml::ElementFormControlTextArea>("ElementFormControlTextArea", sol::no_constructor,
+			// M
+			"Select", &Rml::ElementFormControlTextArea::Select,
+			"SetSelection", &Rml::ElementFormControlTextArea::SetSelectionRange,
+			"GetSelection", &textarea::getSelection,
+
 			// G+S
 			"cols", sol::property(&Rml::ElementFormControlTextArea::GetNumColumns, &Rml::ElementFormControlTextArea::SetNumColumns),
 			"maxlength", sol::property(&Rml::ElementFormControlTextArea::GetMaxLength, &Rml::ElementFormControlTextArea::SetMaxLength),
