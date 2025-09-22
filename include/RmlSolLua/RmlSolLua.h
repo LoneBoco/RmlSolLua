@@ -28,38 +28,28 @@ namespace sol
 
 namespace Rml::SolLua
 {
-    /// <summary>
-    /// Initializes RmlSolLua using the supplied Lua state.
-    /// </summary>
-    /// <param name="state">The Lua state to initialize into.</param>
+    /// @brief Initializes RmlSolLua using the supplied Lua state.
+    /// @param state The Lua state to initialize into.
     RMLUILUA_API void Initialise(sol::state_view* state);
 
-    /// <summary>
-    /// Initializes RmlSolLua using the supplied Lua state.
+    /// @brief Initializes RmlSolLua using the supplied Lua state.
     /// Sets the Lua variable specified by lua_environment_identifier to the document's id when running Lua code.
-    /// </summary>
-    /// <param name="state">The Lua state to initialize into.</param>
-    /// <param name="lua_environment_identifier">The Lua variable name that is set to the document's id.</param>
+    /// @param state The Lua state to initialize into.
+    /// @param lua_environment_identifier The Lua variable name that is set to the document's id.
     RMLUILUA_API void Initialise(sol::state_view* state, const Rml::String& lua_environment_identifier);
 
-    /// <summary>
-    /// Initializes RmlSolLua using the supplied Lua state.
-    /// </summary>
-    /// <param name="state">The Lua state to initialize into.</param>
+    /// @brief Initializes RmlSolLua using the supplied Lua state.
+    /// @param state The Lua state to initialize into.
     RMLUILUA_API void Initialize(sol::state_view* state);
 
-    /// <summary>
-    /// Initializes RmlSolLua using the supplied Lua state.
+    /// @brief Initializes RmlSolLua using the supplied Lua state.
     /// Sets the Lua variable specified by lua_environment_identifier to the document's id when running Lua code.
-    /// </summary>
-    /// <param name="state">The Lua state to initialize into.</param>
-    /// <param name="lua_environment_identifier">The Lua variable name that is set to the document's id.</param>
+    /// @param state The Lua state to initialize into.
+    /// @param lua_environment_identifier The Lua variable name that is set to the document's id.
     RMLUILUA_API void Initialize(sol::state_view* state, const Rml::String& lua_environment_identifier);
 
-    /// <summary>
-    /// Registers RmlSolLua into the specified Lua state.
-    /// </summary>
-    /// <param name="state">The Lua state to register into.</param>
+    /// @brief Registers RmlSolLua into the specified Lua state.
+    /// @param state The Lua state to register into.
     RMLUILUA_API void RegisterLua(sol::state_view* state);
 
 } // end namespace Rml::SolLua
