@@ -201,5 +201,6 @@ namespace Rml::SolLua
 	void bind_log(sol::state_view& lua);
 	void bind_vector(sol::state_view& lua);
 	void bind_convert(sol::state_view& lua);
+	void bind_stylesheet(sol::state_view& lua);
 
 } // end namespace Rml::SolLua

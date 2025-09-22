@@ -54,6 +54,7 @@ namespace Rml::SolLua
         bind_log(*state);
         bind_vector(*state);
         bind_convert(*state);
+        bind_stylesheet(*state);
     }
 
 } // end namespace Rml::SolLua

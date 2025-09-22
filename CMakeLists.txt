@@ -42,6 +42,7 @@ target_sources(RmlSolLua
 		"src/bind/Event.cpp"
 		"src/bind/Global.cpp"
 		"src/bind/Log.cpp"
+		"src/bind/StyleSheet.cpp"
 		"src/bind/Vector.cpp"
 		"src/plugin/SolLuaDataModel.cpp"
 		"src/plugin/SolLuaDataModel.h"
