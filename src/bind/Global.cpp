@@ -11,39 +11,39 @@ namespace Rml::SolLua
 
 	namespace functions
 	{
-		auto getContext()
+		static auto getContext()
 		{
 			std::function<Rml::Context* (int)> result = [](int idx) { return Rml::GetContext(idx); };
 			return result;
 		}
 
-		auto getMaxContexts()
+		static auto getMaxContexts()
 		{
 			std::function<int ()> result = []() { return Rml::GetNumContexts(); };
 			return result;
 		}
 
-		auto loadFontFace1(const Rml::String& file)
+		static auto loadFontFace1(const Rml::String& file)
 		{
 			return Rml::LoadFontFace(file);
 		}
 
-		auto loadFontFace2(const Rml::String& file, bool fallback)
+		static auto loadFontFace2(const Rml::String& file, bool fallback)
 		{
 			return Rml::LoadFontFace(file, fallback);
 		}
 
-		auto loadFontFace3(const Rml::String& file, bool fallback, Rml::Style::FontWeight weight)
+		static auto loadFontFace3(const Rml::String& file, bool fallback, Rml::Style::FontWeight weight)
 		{
 			return Rml::LoadFontFace(file, fallback, weight);
 		}
 
-		auto registerEventType4(const Rml::String& type, bool interruptible, bool bubbles, Rml::DefaultActionPhase default_action_phase)
+		static auto registerEventType4(const Rml::String& type, bool interruptible, bool bubbles, Rml::DefaultActionPhase default_action_phase)
 		{
 			return Rml::RegisterEventType(type, interruptible, bubbles, default_action_phase);
 		}
 
-		auto registerEventType3(const Rml::String& type, bool interruptible, bool bubbles)
+		static auto registerEventType3(const Rml::String& type, bool interruptible, bool bubbles)
 		{
 			return Rml::RegisterEventType(type, interruptible, bubbles, Rml::DefaultActionPhase::None);
 		}

@@ -11,7 +11,7 @@ namespace Rml::SolLua
 
 	namespace functions
 	{
-		SolObjectMap getParameters(Rml::Event& self, sol::this_state s)
+		static SolObjectMap getParameters(Rml::Event& self, sol::this_state s)
 		{
 			SolObjectMap result;
 

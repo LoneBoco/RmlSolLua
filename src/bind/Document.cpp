@@ -11,27 +11,27 @@ namespace Rml::SolLua
 
 	namespace document
 	{
-		auto show(SolLuaDocument& self)
+		static auto show(SolLuaDocument& self)
 		{
 			self.Show();
 		}
 
-		auto showModal(SolLuaDocument& self, Rml::ModalFlag modal)
+		static auto showModal(SolLuaDocument& self, Rml::ModalFlag modal)
 		{
 			self.Show(modal);
 		}
 
-		auto showModalFocus(SolLuaDocument& self, Rml::ModalFlag modal, Rml::FocusFlag focus)
+		static auto showModalFocus(SolLuaDocument& self, Rml::ModalFlag modal, Rml::FocusFlag focus)
 		{
 			self.Show(modal, focus);
 		}
 
-		auto reloadStyleSheet(SolLuaDocument& self)
+		static auto reloadStyleSheet(SolLuaDocument& self)
 		{
 			self.ReloadStyleSheet();
 		}
 
-		auto reloadStyleSheetAndLoad(SolLuaDocument& self, bool load)
+		static auto reloadStyleSheetAndLoad(SolLuaDocument& self, bool load)
 		{
 			reloadStyleSheet(self);
 			if (load)
@@ -41,22 +41,22 @@ namespace Rml::SolLua
 			}
 		}
 
-		auto loadInlineScript3(SolLuaDocument& self, const Rml::String& content, const Rml::String& source_path, int source_line)
+		static auto loadInlineScript3(SolLuaDocument& self, const Rml::String& content, const Rml::String& source_path, int source_line)
 		{
 			self.LoadInlineScript(content, source_path, source_line);
 		}
 
-		auto loadInlineScript2(SolLuaDocument& self, const Rml::String& content, const Rml::String& source_path)
+		static auto loadInlineScript2(SolLuaDocument& self, const Rml::String& content, const Rml::String& source_path)
 		{
 			loadInlineScript3(self, content, source_path, 0);
 		}
 
-		auto loadInlineScript1(SolLuaDocument& self, const Rml::String& content)
+		static auto loadInlineScript1(SolLuaDocument& self, const Rml::String& content)
 		{
 			loadInlineScript3(self, content, self.GetSourceURL(), 0);
 		}
 
-		auto appendToStyleSheet(SolLuaDocument& self, const Rml::String& content)
+		static auto appendToStyleSheet(SolLuaDocument& self, const Rml::String& content)
 		{
 			auto styleSheet = Rml::Factory::InstanceStyleSheetString(content);
 			auto combined = styleSheet->CombineStyleSheetContainer(*self.GetStyleSheetContainer());
