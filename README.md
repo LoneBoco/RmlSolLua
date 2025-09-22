@@ -1,4 +1,4 @@
-RmlSolLua 6.0
+RmlSolLua 6.1
 ===================
 
 Generate bindings for [RmlUi](https://github.com/mikke89/RmlUi) using [sol3](https://github.com/ThePhD/sol2).
@@ -52,7 +52,7 @@ int main()
 
 ## Coverage
 
-**RmlSolLua** contains all the **RmlUi 6.0** Lua bindings EXCEPT:
+**RmlSolLua** contains all the **RmlUi 6.1** Lua bindings EXCEPT:
 - custom element instancing
 - datagrid sources and formatters
 
