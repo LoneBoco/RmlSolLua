@@ -47,7 +47,6 @@ namespace Rml::SolLua
 		lua.new_usertype<Rml::Event>("Event", sol::no_constructor,
 			// M
 			"StopPropagation", &Rml::Event::StopPropagation,
-			//--
 			"StopImmediatePropagation", &Rml::Event::StopImmediatePropagation,
 
 			// G+S
