@@ -1,7 +1,8 @@
 #include <utility>
 
 #include <RmlUi/Core.h>
-#include <sol/sol.hpp>
+#include <RmlSolLua_private.h>
+#include SOLHPP
 
 #include "bind.h"
 
@@ -11,7 +12,7 @@ namespace Rml::SolLua
 
 	namespace functions
 	{
-		static SolObjectMap getParameters(Rml::Event& self, sol::this_state s)
+		static auto getParameters(Rml::Event& self, sol::this_state s)
 		{
 			SolObjectMap result;
 

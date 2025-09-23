@@ -5,7 +5,8 @@
 #include <unordered_map>
 
 #include <RmlUi/Core.h>
-#include <sol/sol.hpp>
+#include <RmlSolLua_private.h>
+#include SOLHPP
 
 
 namespace Rml::SolLua

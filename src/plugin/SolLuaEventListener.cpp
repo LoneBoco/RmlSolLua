@@ -3,7 +3,8 @@
 #include <utility>
 
 #include <RmlUi/Core.h>
-#include <sol/sol.hpp>
+#include <RmlSolLua_private.h>
+#include SOLHPP
 
 #include "SolLuaDocument.h"
 #include "SolLuaEventListener.h"

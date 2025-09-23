@@ -12,6 +12,10 @@
     {
       "name": "rmlui",
       "version": "5.0"
+    },
+    {
+      "name": "sol2",
+      "version": "3.3.1"
     }
   ]
 }

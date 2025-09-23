@@ -27,7 +27,7 @@ endif()
 # Add source to this project's executable.
 target_sources(RmlSolLua
 	PRIVATE
-		"include/RmlSolLua/RmlSolLua.h"
+		"src/RmlSolLua_private.h"
 		"src/RmlSolLua.cpp"
 		"src/bind/bind.cpp"
 		"src/bind/bind.h"
@@ -60,8 +60,13 @@ target_sources(RmlSolLua
 target_sources(RmlSolLua PUBLIC FILE_SET HEADERS BASE_DIRS .)
 target_include_directories(RmlSolLua
 	PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/src/"
-	PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include/")
+	PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include/" ${SOL_INCLUDE_DIR})
 target_compile_definitions(RmlSolLua PRIVATE "RmlLua_EXPORTS")
+
+# sol2 location override flag
+if (DEFINED SOL_INCLUDE_DIR)
+	target_compile_definitions(RmlSolLua PRIVATE "RMLSOLLUA_HAS_SOL_PATH_OVERRIDE")
+endif()
 
 # RmlUI
 find_package(RmlUi CONFIG REQUIRED)
