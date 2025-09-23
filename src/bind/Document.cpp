@@ -1,7 +1,8 @@
 #include <utility>
 
 #include <RmlUi/Core.h>
-#include <sol/sol.hpp>
+#include <RmlSolLua_private.h>
+#include SOLHPP
 
 #include "plugin/SolLuaDocument.h"
 

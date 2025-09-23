@@ -8,8 +8,10 @@
 #include <type_traits>
 #include <unordered_map>
 
+#include <RmlSolLua_private.h>
+#include SOLHPP
+
 #include <RmlUi/Core.h>
-#include <sol/sol.hpp>
 
 
 #ifndef RMLUI_NO_THIRDPARTY_CONTAINERS
