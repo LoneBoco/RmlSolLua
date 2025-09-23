@@ -1,7 +1,8 @@
 #include <functional>
 
 #include <RmlUi/Core.h>
-#include <sol/sol.hpp>
+#include <RmlSolLua_private.h>
+#include SOLHPP
 
 #include "bind.h"
 
@@ -36,6 +37,11 @@ namespace Rml::SolLua
 		static auto loadFontFace3(const Rml::String& file, bool fallback, Rml::Style::FontWeight weight)
 		{
 			return Rml::LoadFontFace(file, fallback, weight);
+		}
+
+		static auto loadFontFace4(const Rml::String& file, bool fallback, Rml::Style::FontWeight weight, int face_index)
+		{
+			return Rml::LoadFontFace(file, fallback, weight, face_index);
 		}
 
 		static auto registerEventType4(const Rml::String& type, bool interruptible, bool bubbles, Rml::DefaultActionPhase default_action_phase)
@@ -265,7 +271,8 @@ namespace Rml::SolLua
 			"LoadFontFace", sol::overload(
 				&functions::loadFontFace1,
 				&functions::loadFontFace2,
-				&functions::loadFontFace3
+				&functions::loadFontFace3,
+				&functions::loadFontFace4
 			),
 			//"RegisterTag",
 			//--
