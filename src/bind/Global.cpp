@@ -1,7 +1,8 @@
 #include <functional>
 
 #include <RmlUi/Core.h>
-#include <sol/sol.hpp>
+#include <RmlSolLua_private.h>
+#include SOLHPP
 
 #include "bind.h"
 

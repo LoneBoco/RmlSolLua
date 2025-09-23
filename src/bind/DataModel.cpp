@@ -1,6 +1,7 @@
 #include <string>
 
-#include <sol/sol.hpp>
+#include <RmlSolLua_private.h>
+#include SOLHPP
 
 #include "plugin/SolLuaDataModel.h"
 
@@ -9,12 +10,12 @@ namespace Rml::SolLua
 {
 	namespace functions
 	{
-		sol::object dataModelGet(SolLuaDataModel& self, const std::string& name, sol::this_state s)
+		static sol::object dataModelGet(SolLuaDataModel& self, const std::string& name, sol::this_state s)
 		{
 			return self.Table.get<sol::object>(name);
 		}
 
-		void dataModelSet(SolLuaDataModel& self, const std::string& name, sol::object value, sol::this_state s)
+		static void dataModelSet(SolLuaDataModel& self, const std::string& name, sol::object value, sol::this_state s)
 		{
 			self.Handle.DirtyVariable(name);
 			self.Table.set(name, value);
