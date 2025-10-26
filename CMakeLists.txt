@@ -7,7 +7,10 @@ cmake_policy(SET CMP0091 NEW)	# CMP0091: MSVC runtime library flags are selected
 cmake_policy(SET CMP0144 NEW)	# CMP0144: Also search <PACKAGENAME>_ROOT as well as <PackageName>_ROOT.
 
 project(RmlSolLua VERSION 5.1.0 DESCRIPTION "" LANGUAGES CXX)
-add_library(RmlSolLua STATIC)
+
+option(BUILD_SHARED_LIBS "Build using shared libraries" ON)
+
+add_library(RmlSolLua)
 
 # C++20 mode.
 target_compile_features(RmlSolLua PUBLIC cxx_std_20)
@@ -22,6 +25,12 @@ if(MSVC)
 	if(MSVC_VERSION GREATER_EQUAL 1925)
 		target_compile_options(RmlSolLua PUBLIC "/Zc:preprocessor")
 	endif()
+endif()
+
+# Disable visibility annotations when linked statically
+get_target_property(RmlSolLua_TYPE RmlSolLua "TYPE")
+if(RmlSolLua_TYPE STREQUAL "STATIC_LIBRARY")
+	target_compile_definitions(RmlSolLua PUBLIC "RMLSOLLUA_STATIC_LIB")
 endif()
 
 # Add source to this project's executable.
