@@ -6,9 +6,9 @@
     #undef RMLUILUA_API
 #endif
 
-#if !defined RMLUI_STATIC_LIB
+#if !defined RMLSOLLUA_STATIC_LIB
     #ifdef RMLUI_PLATFORM_WIN32
-        #if defined RmlLua_EXPORTS
+        #if defined RmlSolLua_EXPORTS
             #define RMLUILUA_API __declspec(dllexport)
         #else
             #define RMLUILUA_API __declspec(dllimport)
@@ -19,7 +19,6 @@
 #else
     #define RMLUILUA_API
 #endif
-
 
 namespace sol
 {
