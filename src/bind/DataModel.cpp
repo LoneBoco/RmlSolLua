@@ -5,31 +5,32 @@
 
 #include "plugin/SolLuaDataModel.h"
 
+namespace Rml::SolLua {
+namespace functions {
+static sol::object dataModelGet(SolLuaDataModelTableProxy &self, const std::string &name, sol::this_state s) {
+    auto proxyTable = self.children.find(name);
+    if (proxyTable != self.children.end()) {
+        return sol::make_object(s, &proxyTable->second);
+    }
+    return self.objectDef->table().get<sol::object>(name);
+}
 
-namespace Rml::SolLua
-{
-	namespace functions
-	{
-		static sol::object dataModelGet(SolLuaDataModel& self, const std::string& name, sol::this_state s)
-		{
-			return self.Table.get<sol::object>(name);
-		}
+static void
+dataModelSet(SolLuaDataModelTableProxy &self, const std::string &name, sol::object value, sol::this_state s) {
+    self.objectDef->table().set(name, value);
+    self.modelHandle.DirtyVariable(name);
+}
+}
 
-		static void dataModelSet(SolLuaDataModel& self, const std::string& name, sol::object value, sol::this_state s)
-		{
-			self.Handle.DirtyVariable(name);
-			self.Table.set(name, value);
-		}
-	}
-
-	void bind_datamodel(sol::state_view& lua)
-	{
-
-		lua.new_usertype<SolLuaDataModel>("SolLuaDataModel", sol::no_constructor,
-			sol::meta_function::index, &functions::dataModelGet,
-			sol::meta_function::new_index, &functions::dataModelSet
-		);
-
-	}
+void bind_datamodel(sol::state_view &lua) {
+    lua.new_usertype<SolLuaDataModelTableProxy>(
+        "SolLuaDataModelTableProxy",
+        sol::no_constructor,
+        sol::meta_function::index,
+        &functions::dataModelGet,
+        sol::meta_function::new_index,
+        &functions::dataModelSet
+    );
+}
 
 } // end namespace Rml::SolLua
