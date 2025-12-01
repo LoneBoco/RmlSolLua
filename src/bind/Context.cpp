@@ -153,6 +153,8 @@ void bind_context(sol::state_view &lua) {
         &Rml::Context::PushDocumentToBack,
         "UnfocusDocument",
         &Rml::Context::UnfocusDocument,
+        "RemoveDataModel",
+        &Rml::Context::RemoveDataModel,
         // RemoveEventListener
 
         // G+S
