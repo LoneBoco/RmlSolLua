@@ -32,16 +32,29 @@ DataVariable MakeLiteralIntVariable(int value) {
 
 SolLuaDataModel::SolLuaDataModel(const sol::table &model, const Rml::DataModelConstructor &constructor)
     : m_constructor(constructor),
-      m_topLevelProxy{ .modelHandle = m_constructor.GetModelHandle(),
-                       .objectDef = std::make_unique<SolLuaObjectDef>(model) } {
-    wrapTable(m_topLevelProxy, true);
+      m_topLevelProxy{ .model = this, .objectDef = std::make_unique<SolLuaObjectDef>(model) } {
+    bindTable(m_topLevelProxy, true);
+}
+
+Rml::DataModelHandle SolLuaDataModel::modelHandle() const {
+    return m_constructor.GetModelHandle();
 }
 
 SolLuaDataModelTableProxy &SolLuaDataModel::topLevelProxy() {
     return m_topLevelProxy;
 }
 
-void SolLuaDataModel::wrapTable(SolLuaDataModelTableProxy &proxy, bool topLevel) {
+void SolLuaDataModel::rebindNestedTable(SolLuaDataModelTableProxy &nestedProxy, const sol::table &newTable) {
+    assert(nestedProxy.dirty);
+
+    nestedProxy.children.clear();              // Orphan existing children
+    nestedProxy.objectDef->setTable(newTable); // Update table
+    bindTable(nestedProxy, false);             // Nested rebind
+
+    nestedProxy.dirty = false;
+}
+
+void SolLuaDataModel::bindTable(SolLuaDataModelTableProxy &proxy, bool topLevel) {
     for (auto &[key, value] : proxy.objectDef->table()) {
         std::string skey;
         if (key.get_type() == sol::type::string) {
@@ -52,17 +65,18 @@ void SolLuaDataModel::wrapTable(SolLuaDataModelTableProxy &proxy, bool topLevel)
             skey = std::format("[{}]", key.as<int>() - 1); // Lua is 1-based
         } else {
             Rml::Log::Message(Log::LT_ERROR, "Data model key with type other than string or integer is unsupported");
+            return;
         }
 
         if (value.get_type() == sol::type::table) {
             auto childProxyIt = proxy.children.emplace(
                 skey,
-                SolLuaDataModelTableProxy{ .modelHandle = m_topLevelProxy.modelHandle,
+                SolLuaDataModelTableProxy{ .model = this,
                                            .objectDef = std::make_unique<SolLuaObjectDef>(value.as<sol::table>()) }
             );
             assert(childProxyIt.second);
             childProxyIt.first->second.topLevelKey = proxy.topLevelKey ? proxy.topLevelKey : &childProxyIt.first->first;
-            wrapTable(childProxyIt.first->second, false);
+            bindTable(childProxyIt.first->second, false);
             if (topLevel && skey[0] != '[') {
                 // Only bind top-level non-integer keys
                 m_constructor.BindCustomDataVariable(
@@ -106,10 +120,6 @@ void SolLuaDataModel::wrapTable(SolLuaDataModelTableProxy &proxy, bool topLevel)
             }
         }
     }
-}
-
-void SolLuaDataModel::rebindNestedTable(SolLuaDataModelTableProxy &proxy, const sol::object &key) {
-    sol::table_proxy valueProxy = proxy.objectDef->table()[key];
 }
 
 /// SolLuaObjectDef
@@ -208,6 +218,9 @@ DataVariable SolLuaObjectDef::Child(void *ptr, const Rml::DataAddressEntry &addr
     if (obj.get_type() == sol::type::table) {
         auto it = proxy.children.find(skey);
         assert(it != proxy.children.end());
+        if (it->second.dirty) {
+            proxy.model->rebindNestedTable(it->second, obj);
+        }
 
         // Pass proxy as ptr to be used in `Child` calls further down the chain
         return { it->second.objectDef.get(), &it->second };
@@ -220,6 +233,10 @@ DataVariable SolLuaObjectDef::Child(void *ptr, const Rml::DataAddressEntry &addr
 
 sol::table &SolLuaObjectDef::table() {
     return m_table;
+}
+
+void SolLuaObjectDef::setTable(sol::table table) {
+    m_table = std::move(table);
 }
 
 } // end namespace Rml::SolLua

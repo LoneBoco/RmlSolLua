@@ -11,10 +11,11 @@
 
 namespace Rml::SolLua {
 class SolLuaObjectDef;
+class SolLuaDataModel;
 
 /// Userdata that proxies any table in the model, recursively
 struct SolLuaDataModelTableProxy {
-    Rml::DataModelHandle modelHandle;
+    SolLuaDataModel *model = nullptr;
     std::unique_ptr<SolLuaObjectDef> objectDef;
 
     // Children proxies for nested tables
@@ -25,17 +26,21 @@ struct SolLuaDataModelTableProxy {
 
     // Not string_view to avoid transient copy since Rml expects String&
     const std::string *topLevelKey = nullptr;
+
+    bool dirty = false;
 };
 
 class SolLuaDataModel {
   public:
     SolLuaDataModel(const sol::table &model, const Rml::DataModelConstructor &constructor);
 
+    Rml::DataModelHandle modelHandle() const;
+
     SolLuaDataModelTableProxy &topLevelProxy();
+    void rebindNestedTable(SolLuaDataModelTableProxy &nestedProxy, const sol::table &newTable);
 
   private:
-    void wrapTable(SolLuaDataModelTableProxy &proxy, bool topLevel);
-    void rebindNestedTable(SolLuaDataModelTableProxy &proxy, const sol::object& key);
+    void bindTable(SolLuaDataModelTableProxy &proxy, bool topLevel);
 
     Rml::DataModelConstructor m_constructor;
     SolLuaDataModelTableProxy m_topLevelProxy;
@@ -50,6 +55,8 @@ class SolLuaObjectDef final : public Rml::VariableDefinition {
     DataVariable Child(void *ptr, const Rml::DataAddressEntry &address) override;
 
     sol::table &table();
+
+    void setTable(sol::table table);
 
   protected:
     sol::table m_table;

@@ -9,9 +9,9 @@ namespace Rml::SolLua {
 namespace functions {
 static sol::object dataModelGet(SolLuaDataModelTableProxy &self, const sol::object &key, sol::this_state s) {
     std::string skey = key.is<std::string>() ? key.as<std::string>() : std::format("[{}]", key.as<int>() - 1);
-    auto proxyTable = self.children.find(skey);
-    if (proxyTable != self.children.end()) {
-        return sol::make_object(s, &proxyTable->second);
+    auto proxyTableIt = self.children.find(skey);
+    if (proxyTableIt != self.children.end()) {
+        return sol::make_object(s, &proxyTableIt->second);
     }
     return self.objectDef->table().get<sol::object>(key);
 }
@@ -20,7 +20,14 @@ static void
 dataModelSet(SolLuaDataModelTableProxy &self, const sol::object &key, sol::object value, sol::this_state s) {
     std::string skey = key.is<std::string>() ? key.as<std::string>() : std::format("[{}]", key.as<int>() - 1);
     self.objectDef->table().set(key, value);
-    self.modelHandle.DirtyVariable(self.topLevelKey ? *self.topLevelKey : skey);
+    self.model->modelHandle().DirtyVariable(self.topLevelKey ? *self.topLevelKey : skey);
+
+    if (value.get_type() == sol::type::table) {
+        // Also dirty nested table's proxy
+        auto proxyTableIt = self.children.find(skey);
+        assert(proxyTableIt != self.children.end());
+        proxyTableIt->second.dirty = true;
+    }
 }
 }
 
