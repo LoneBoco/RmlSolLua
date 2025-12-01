@@ -9,7 +9,26 @@
 #include "bind/bind.h"
 
 namespace Rml::SolLua {
-namespace {}
+namespace {
+
+class LiteralIntDefinition final : public VariableDefinition {
+  public:
+    LiteralIntDefinition()
+        : VariableDefinition(DataVariableType::Scalar) {
+    }
+
+    bool Get(void *ptr, Variant &variant) override {
+        variant = static_cast<int>(reinterpret_cast<intptr_t>(ptr));
+        return true;
+    }
+};
+
+DataVariable MakeLiteralIntVariable(int value) {
+    static LiteralIntDefinition literal_int_definition;
+    return DataVariable(&literal_int_definition, reinterpret_cast<void *>(static_cast<intptr_t>(value)));
+}
+
+}
 
 SolLuaDataModel::SolLuaDataModel(const sol::table &model, const Rml::DataModelConstructor &constructor)
     : m_constructor(constructor),
@@ -24,7 +43,16 @@ SolLuaDataModelTableProxy &SolLuaDataModel::topLevelProxy() {
 
 void SolLuaDataModel::wrapTable(SolLuaDataModelTableProxy &proxy, bool topLevel) {
     for (auto &[key, value] : proxy.objectDef->table()) {
-        auto skey = key.as<std::string>();
+        std::string skey;
+        if (key.get_type() == sol::type::string) {
+            skey = key.as<std::string>();
+        } else if (key.get_type() == sol::type::number) {
+            // Assign a pseudo-key for numeric indices
+            // TODO: check if the number is an integer?
+            skey = std::format("[{}]", key.as<int>() - 1); // Lua is 1-based
+        } else {
+            Rml::Log::Message(Log::LT_ERROR, "Data model key with type other than string or integer is unsupported");
+        }
 
         if (value.get_type() == sol::type::table) {
             auto childProxyIt = proxy.children.emplace(
@@ -34,6 +62,12 @@ void SolLuaDataModel::wrapTable(SolLuaDataModelTableProxy &proxy, bool topLevel)
             );
             assert(childProxyIt.second);
             wrapTable(childProxyIt.first->second, false);
+            if (skey[0] != '[') {
+                // Skip pseudo-keys - they will be handled in `Child`
+                m_constructor.BindCustomDataVariable(
+                    skey, Rml::DataVariable(childProxyIt.first->second.objectDef.get(), &childProxyIt.first->second)
+                );
+            }
         } else {
             if (value.get_type() == sol::type::function) {
                 if (!topLevel) {
@@ -62,9 +96,12 @@ void SolLuaDataModel::wrapTable(SolLuaDataModelTableProxy &proxy, bool topLevel)
                 );
             } else {
                 auto it = proxy.keys.emplace(skey);
-                m_constructor.BindCustomDataVariable(
-                    skey, Rml::DataVariable(proxy.objectDef.get(), const_cast<char *>(it.first->data()))
-                );
+                if (skey[0] != '[') {
+                    // Skip pseudo-keys - they will be handled in `Child`
+                    m_constructor.BindCustomDataVariable(
+                        skey, Rml::DataVariable(proxy.objectDef.get(), const_cast<char *>(it.first->data()))
+                    );
+                }
             }
         }
     }
@@ -77,8 +114,15 @@ SolLuaObjectDef::SolLuaObjectDef(sol::table table)
 }
 
 bool SolLuaObjectDef::Get(void *ptr, Rml::Variant &variant) {
+    sol::object obj;
     auto *key = const_cast<const char *>(static_cast<char *>(ptr));
-    sol::object obj = m_table[key];
+    if (key[0] == '[') {
+        // Pseudo-key: access by index
+        int idx = std::atoi(key + 1);
+        obj = m_table[idx + 1]; // Lua is 1-based
+    } else {
+        obj = m_table[key];
+    }
 
     if (obj.is<bool>()) {
         variant = obj.as<bool>();
@@ -103,27 +147,53 @@ bool SolLuaObjectDef::Get(void *ptr, Rml::Variant &variant) {
 
 bool SolLuaObjectDef::Set(void *ptr, const Rml::Variant &variant) {
     auto *key = const_cast<const char *>(static_cast<char *>(ptr));
-    sol::table_proxy obj = m_table[key];
-    obj = makeObjectFromVariant(&variant, m_table.lua_state());
+    if (key[0] == '[') {
+        // Pseudo-key: access by index
+        int idx = std::atoi(key + 1);
+        sol::table_proxy obj = m_table[idx + 1]; // Lua is 1-based
+        obj = makeObjectFromVariant(&variant, m_table.lua_state());
+    } else {
+        sol::table_proxy obj = m_table[key];
+        obj = makeObjectFromVariant(&variant, m_table.lua_state());
+    }
     return true;
 }
 
 int SolLuaObjectDef::Size(void *ptr) {
-    // Non-table types are 1 entry long.
-    auto object = static_cast<sol::object *>(ptr);
-    if (object->get_type() != sol::type::table) {
-        return 1;
-    }
-
-    auto t = object->as<sol::table>();
-    return static_cast<int>(t.size());
+    // TODO: can size be called on non-proxy objects?
+    SolLuaDataModelTableProxy &proxy = *static_cast<SolLuaDataModelTableProxy *>(ptr);
+    return static_cast<int>(proxy.objectDef->table().size());
 }
 
 DataVariable SolLuaObjectDef::Child(void *ptr, const Rml::DataAddressEntry &address) {
-    __debugbreak(); // TODO: Implement Child access for SolLua objects.
+    SolLuaDataModelTableProxy &proxy = *static_cast<SolLuaDataModelTableProxy *>(ptr);
 
-    // Failure.
-    return DataVariable{};
+    std::string skey;
+    sol::object obj;
+    if (address.index != -1) {
+        // Access by index
+        skey = std::format("[{}]", address.index);
+        obj = proxy.objectDef->table()[address.index + 1]; // Lua is 1-based
+    } else {
+        if (address.name == "size") {
+            return MakeLiteralIntVariable(proxy.objectDef->table().size());
+        }
+
+        skey = address.name;
+        obj = proxy.objectDef->table()[address.name];
+    }
+
+    if (obj.get_type() == sol::type::table) {
+        auto it = proxy.children.find(skey);
+        assert(it != proxy.children.end());
+
+        // Pass proxy as ptr to be used in `Child` calls further down the chain
+        return { it->second.objectDef.get(), &it->second };
+    }
+
+    auto it = proxy.keys.find(skey);
+    assert(it != proxy.keys.end());
+    return { proxy.objectDef.get(), const_cast<char *>(it->data()) };
 }
 
 sol::table &SolLuaObjectDef::table() {
