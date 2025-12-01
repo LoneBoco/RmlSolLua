@@ -35,9 +35,9 @@ class SolLuaDataModel {
 
   private:
     void wrapTable(SolLuaDataModelTableProxy &proxy, bool topLevel);
+    void rebindNestedTable(SolLuaDataModelTableProxy &proxy, const sol::object& key);
 
     Rml::DataModelConstructor m_constructor;
-
     SolLuaDataModelTableProxy m_topLevelProxy;
 };
 

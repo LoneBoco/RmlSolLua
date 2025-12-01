@@ -64,7 +64,7 @@ void SolLuaDataModel::wrapTable(SolLuaDataModelTableProxy &proxy, bool topLevel)
             childProxyIt.first->second.topLevelKey = proxy.topLevelKey ? proxy.topLevelKey : &childProxyIt.first->first;
             wrapTable(childProxyIt.first->second, false);
             if (topLevel && skey[0] != '[') {
-                // Skip pseudo-keys - they will be handled in `Child`
+                // Only bind top-level non-integer keys
                 m_constructor.BindCustomDataVariable(
                     skey, Rml::DataVariable(childProxyIt.first->second.objectDef.get(), &childProxyIt.first->second)
                 );
@@ -98,7 +98,7 @@ void SolLuaDataModel::wrapTable(SolLuaDataModelTableProxy &proxy, bool topLevel)
             } else {
                 auto it = proxy.keys.emplace(skey);
                 if (topLevel && skey[0] != '[') {
-                    // Skip pseudo-keys - they will be handled in `Child`
+                    // Only bind top-level non-integer keys
                     m_constructor.BindCustomDataVariable(
                         skey, Rml::DataVariable(proxy.objectDef.get(), const_cast<char *>(it.first->data()))
                     );
@@ -106,6 +106,10 @@ void SolLuaDataModel::wrapTable(SolLuaDataModelTableProxy &proxy, bool topLevel)
             }
         }
     }
+}
+
+void SolLuaDataModel::rebindNestedTable(SolLuaDataModelTableProxy &proxy, const sol::object &key) {
+    sol::table_proxy valueProxy = proxy.objectDef->table()[key];
 }
 
 /// SolLuaObjectDef
@@ -119,7 +123,9 @@ bool SolLuaObjectDef::Get(void *ptr, Rml::Variant &variant) {
     auto *key = const_cast<const char *>(static_cast<char *>(ptr));
     if (key[0] == '[') {
         // Pseudo-key: access by index
-        int idx = std::atoi(key + 1);
+        int idx;
+        std::from_chars_result result = std::from_chars(key + 1, key + std::strlen(key) - 1, idx);
+        assert(result.ec == std::errc{} && "Rml failed to sanitize user input to be well-formed");
         if (idx < 0 || idx >= m_table.size()) {
             Rml::Log::Message(Rml::Log::LT_ERROR, "Data array index out of bounds.");
             return false;
@@ -154,7 +160,9 @@ bool SolLuaObjectDef::Set(void *ptr, const Rml::Variant &variant) {
     auto *key = const_cast<const char *>(static_cast<char *>(ptr));
     if (key[0] == '[') {
         // Pseudo-key: access by index
-        int idx = std::atoi(key + 1);
+        int idx;
+        std::from_chars_result result = std::from_chars(key + 1, key + std::strlen(key) - 1, idx);
+        assert(result.ec == std::errc{} && "Rml failed to sanitize user input to be well-formed");
         if (idx < 0 || idx >= m_table.size()) {
             Rml::Log::Message(Rml::Log::LT_ERROR, "Data array index out of bounds.");
             return false;
