@@ -72,7 +72,7 @@ void SolLuaDataModel::wrapTable(SolLuaDataModelTableProxy &proxy, bool topLevel)
             if (value.get_type() == sol::type::function) {
                 if (!topLevel) {
                     Rml::Log::Message(
-                        Log::LT_ERROR, "Event callbacks are only allowed at the top level of a data model."
+                        Log::LT_WARNING, "Event callbacks are only allowed at the top level of a data model."
                     );
                     continue;
                 }
@@ -119,6 +119,10 @@ bool SolLuaObjectDef::Get(void *ptr, Rml::Variant &variant) {
     if (key[0] == '[') {
         // Pseudo-key: access by index
         int idx = std::atoi(key + 1);
+        if (idx < 0 || idx >= m_table.size()) {
+            Rml::Log::Message(Rml::Log::LT_ERROR, "Data array index out of bounds.");
+            return false;
+        }
         obj = m_table[idx + 1]; // Lua is 1-based
     } else {
         obj = m_table[key];
@@ -137,7 +141,7 @@ bool SolLuaObjectDef::Get(void *ptr, Rml::Variant &variant) {
     } else if (obj.is<Rml::Colourf>()) {
         variant = obj.as<Rml::Colourf>();
     } else if (obj.is<double>()) {
-        variant = obj.is<double>();
+        variant = obj.as<double>();
     } else {
         variant = Rml::Variant{};
     }
@@ -150,6 +154,10 @@ bool SolLuaObjectDef::Set(void *ptr, const Rml::Variant &variant) {
     if (key[0] == '[') {
         // Pseudo-key: access by index
         int idx = std::atoi(key + 1);
+        if (idx < 0 || idx >= m_table.size()) {
+            Rml::Log::Message(Rml::Log::LT_ERROR, "Data array index out of bounds.");
+            return false;
+        }
         sol::table_proxy obj = m_table[idx + 1]; // Lua is 1-based
         obj = makeObjectFromVariant(&variant, m_table.lua_state());
     } else {
@@ -167,16 +175,21 @@ int SolLuaObjectDef::Size(void *ptr) {
 
 DataVariable SolLuaObjectDef::Child(void *ptr, const Rml::DataAddressEntry &address) {
     SolLuaDataModelTableProxy &proxy = *static_cast<SolLuaDataModelTableProxy *>(ptr);
+    sol::table t = proxy.objectDef->table();
 
     std::string skey;
     sol::object obj;
     if (address.index != -1) {
+        if (address.index < 0 || address.index >= t.size()) {
+            Rml::Log::Message(Rml::Log::LT_ERROR, "Data array index out of bounds.");
+            return {};
+        }
         // Access by index
         skey = std::format("[{}]", address.index);
-        obj = proxy.objectDef->table()[address.index + 1]; // Lua is 1-based
+        obj = t[address.index + 1]; // Lua is 1-based
     } else {
         if (address.name == "size") {
-            return MakeLiteralIntVariable(proxy.objectDef->table().size());
+            return MakeLiteralIntVariable(t.size());
         }
 
         skey = address.name;
