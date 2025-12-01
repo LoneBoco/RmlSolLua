@@ -7,18 +7,20 @@
 
 namespace Rml::SolLua {
 namespace functions {
-static sol::object dataModelGet(SolLuaDataModelTableProxy &self, const std::string &name, sol::this_state s) {
-    auto proxyTable = self.children.find(name);
+static sol::object dataModelGet(SolLuaDataModelTableProxy &self, const sol::object &key, sol::this_state s) {
+    std::string skey = key.is<std::string>() ? key.as<std::string>() : std::format("[{}]", key.as<int>() - 1);
+    auto proxyTable = self.children.find(skey);
     if (proxyTable != self.children.end()) {
         return sol::make_object(s, &proxyTable->second);
     }
-    return self.objectDef->table().get<sol::object>(name);
+    return self.objectDef->table().get<sol::object>(key);
 }
 
 static void
-dataModelSet(SolLuaDataModelTableProxy &self, const std::string &name, sol::object value, sol::this_state s) {
-    self.objectDef->table().set(name, value);
-    self.modelHandle.DirtyVariable(name);
+dataModelSet(SolLuaDataModelTableProxy &self, const sol::object &key, sol::object value, sol::this_state s) {
+    std::string skey = key.is<std::string>() ? key.as<std::string>() : std::format("[{}]", key.as<int>() - 1);
+    self.objectDef->table().set(key, value);
+    self.modelHandle.DirtyVariable(self.topLevelKey ? *self.topLevelKey : skey);
 }
 }
 

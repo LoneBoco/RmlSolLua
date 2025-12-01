@@ -61,8 +61,9 @@ void SolLuaDataModel::wrapTable(SolLuaDataModelTableProxy &proxy, bool topLevel)
                                            .objectDef = std::make_unique<SolLuaObjectDef>(value.as<sol::table>()) }
             );
             assert(childProxyIt.second);
+            childProxyIt.first->second.topLevelKey = proxy.topLevelKey ? proxy.topLevelKey : &childProxyIt.first->first;
             wrapTable(childProxyIt.first->second, false);
-            if (skey[0] != '[') {
+            if (topLevel && skey[0] != '[') {
                 // Skip pseudo-keys - they will be handled in `Child`
                 m_constructor.BindCustomDataVariable(
                     skey, Rml::DataVariable(childProxyIt.first->second.objectDef.get(), &childProxyIt.first->second)
@@ -96,7 +97,7 @@ void SolLuaDataModel::wrapTable(SolLuaDataModelTableProxy &proxy, bool topLevel)
                 );
             } else {
                 auto it = proxy.keys.emplace(skey);
-                if (skey[0] != '[') {
+                if (topLevel && skey[0] != '[') {
                     // Skip pseudo-keys - they will be handled in `Child`
                     m_constructor.BindCustomDataVariable(
                         skey, Rml::DataVariable(proxy.objectDef.get(), const_cast<char *>(it.first->data()))

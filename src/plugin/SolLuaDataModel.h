@@ -17,11 +17,14 @@ struct SolLuaDataModelTableProxy {
     Rml::DataModelHandle modelHandle;
     std::unique_ptr<SolLuaObjectDef> objectDef;
 
-    // Store keys in a set to keep alive the strings
-    std::unordered_set<std::string> keys;
-
     // Children proxies for nested tables
     std::unordered_map<std::string, SolLuaDataModelTableProxy> children;
+
+    // Store keys of non-table values in a set just to keep alive the strings
+    std::unordered_set<std::string> keys;
+
+    // Not string_view to avoid transient copy since Rml expects String&
+    const std::string *topLevelKey = nullptr;
 };
 
 class SolLuaDataModel {
