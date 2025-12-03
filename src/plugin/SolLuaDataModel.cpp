@@ -1,18 +1,18 @@
 #include <string>
 
-#include <RmlUi/Core.h>
 #include <RmlSolLua_private.h>
+#include <RmlUi/Core.h>
 #include SOLHPP
 
 #include "SolLuaDataModel.h"
 
-
 namespace Rml::SolLua
 {
-	SolLuaDataModel::SolLuaDataModel(sol::state_view s) : Lua{ s } {}
+	SolLuaDataModel::SolLuaDataModel(sol::state_view s) : Lua{s}
+	{}
 
 	SolLuaObjectDef::SolLuaObjectDef(SolLuaDataModel* model)
-		: VariableDefinition(DataVariableType::Scalar), m_model(model)
+	    : VariableDefinition(DataVariableType::Scalar), m_model(model)
 	{
 	}
 
@@ -97,7 +97,7 @@ namespace Rml::SolLua
 
 			// Hold a reference to it and return the pointer.
 			auto it = m_model->ObjectList.insert_or_assign(tablestr + "_" + std::to_string(address.index), e);
-			return DataVariable{ m_model->ObjectDef.get(), &(it.first->second) };
+			return DataVariable{m_model->ObjectDef.get(), &(it.first->second)};
 		}
 		// Accessing by index.
 		else
@@ -107,7 +107,7 @@ namespace Rml::SolLua
 			if (has_index.get_type() != sol::type::lua_nil)
 			{
 				auto it = m_model->ObjectList.insert_or_assign(tablestr + "_" + std::to_string(address.index), has_index);
-				return DataVariable{ m_model->ObjectDef.get(), &(it.first->second) };
+				return DataVariable{m_model->ObjectDef.get(), &(it.first->second)};
 			}
 
 			// Iterate through the entries and grab the nth entry.
@@ -117,7 +117,7 @@ namespace Rml::SolLua
 				if (idx == address.index)
 				{
 					auto it = m_model->ObjectList.insert_or_assign(tablestr + "_" + std::to_string(idx), v);
-					return DataVariable{ m_model->ObjectDef.get(), &(it.first->second) };
+					return DataVariable{m_model->ObjectDef.get(), &(it.first->second)};
 				}
 				++idx;
 			}

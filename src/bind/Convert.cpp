@@ -1,9 +1,10 @@
-#include <RmlUi/Core.h>
 #include <RmlSolLua_private.h>
+#include <RmlUi/Core.h>
 #include SOLHPP
 
 #include "plugin/SolLuaDocument.h"
 
+#define CONVERSION(T) static_cast<T* (*)(Rml::Element*)>(&functions::convert)
 
 namespace Rml::SolLua
 {
@@ -20,8 +21,7 @@ namespace Rml::SolLua
 			return test;
 		}
 
-		#define CONVERSION(T) static_cast<T*(*)(Rml::Element*)>(&functions::convert)
-	}
+	} // namespace functions
 
 	void bind_convert(sol::state_view& lua)
 	{

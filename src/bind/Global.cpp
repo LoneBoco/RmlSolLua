@@ -1,11 +1,10 @@
 #include <functional>
 
-#include <RmlUi/Core.h>
 #include <RmlSolLua_private.h>
+#include <RmlUi/Core.h>
 #include SOLHPP
 
 #include "bind.h"
-
 
 namespace Rml::SolLua
 {
@@ -14,13 +13,15 @@ namespace Rml::SolLua
 	{
 		static auto getContext()
 		{
-			std::function<Rml::Context* (int)> result = [](int idx) { return Rml::GetContext(idx); };
+			std::function<Rml::Context*(int)> result = [](int idx)
+			{ return Rml::GetContext(idx); };
 			return result;
 		}
 
 		static auto getMaxContexts()
 		{
-			std::function<int ()> result = []() { return Rml::GetNumContexts(); };
+			std::function<int()> result = []()
+			{ return Rml::GetNumContexts(); };
 			return result;
 		}
 
@@ -53,12 +54,13 @@ namespace Rml::SolLua
 		{
 			return Rml::RegisterEventType(type, interruptible, bubbles, Rml::DefaultActionPhase::None);
 		}
-	}
+	} // namespace functions
 
-	#define _ENUM(N) lua["RmlKeyIdentifier"][#N] = Rml::Input::KI_##N
+#define _ENUM(N) lua["RmlKeyIdentifier"][#N] = Rml::Input::KI_##N
 
 	void bind_global(sol::state_view& lua)
 	{
+		// clang-format off
 
 		// We can't make this into an enum.
 		// The compiler can't handle everything under one call.
@@ -240,28 +242,34 @@ namespace Rml::SolLua
 		_ENUM(PA1);
 		_ENUM(OEM_CLEAR);
 
-		lua.new_enum<Rml::Input::KeyModifier>("RmlKeyModifier", {
-			{ "CTRL", Rml::Input::KM_CTRL },
-			{ "SHIFT", Rml::Input::KM_SHIFT },
-			{ "ALT", Rml::Input::KM_ALT },
-			{ "META", Rml::Input::KM_META },
-			{ "CAPSLOCK", Rml::Input::KM_CAPSLOCK },
-			{ "NUMLOCK", Rml::Input::KM_NUMLOCK },
-			{ "SCROLLLOCK", Rml::Input::KM_SCROLLLOCK }
-		});
+		lua.new_enum<Rml::Input::KeyModifier>("RmlKeyModifier",
+			{
+				{ "CTRL", Rml::Input::KM_CTRL },
+				{ "SHIFT", Rml::Input::KM_SHIFT },
+				{ "ALT", Rml::Input::KM_ALT },
+				{ "META", Rml::Input::KM_META },
+				{ "CAPSLOCK", Rml::Input::KM_CAPSLOCK },
+				{ "NUMLOCK", Rml::Input::KM_NUMLOCK },
+				{ "SCROLLLOCK", Rml::Input::KM_SCROLLLOCK }
+			}
+		);
 
 		//--
-		lua.new_enum<Rml::Style::FontWeight>("RmlFontWeight", {
-			{ "Auto", Rml::Style::FontWeight::Auto },
-			{ "Normal", Rml::Style::FontWeight::Normal },
-			{ "Bold", Rml::Style::FontWeight::Bold }
-		});
+		lua.new_enum<Rml::Style::FontWeight>("RmlFontWeight",
+			{
+				{ "Auto", Rml::Style::FontWeight::Auto },
+				{ "Normal", Rml::Style::FontWeight::Normal },
+				{ "Bold", Rml::Style::FontWeight::Bold }
+			}
+		);
 
-		lua.new_enum<Rml::DefaultActionPhase>("RmlDefaultActionPhase", {
-			{ "None", Rml::DefaultActionPhase::None },
-			{ "Target", Rml::DefaultActionPhase::Target },
-			{ "TargetAndBubble", Rml::DefaultActionPhase::TargetAndBubble }
-		});
+		lua.new_enum<Rml::DefaultActionPhase>("RmlDefaultActionPhase",
+			{
+				{ "None", Rml::DefaultActionPhase::None },
+				{ "Target", Rml::DefaultActionPhase::Target },
+				{ "TargetAndBubble", Rml::DefaultActionPhase::TargetAndBubble }
+			}
+		);
 		
 		struct rmlui {};
 
@@ -289,7 +297,7 @@ namespace Rml::SolLua
 		//--
 		g.set("font_weight", sol::readonly_property([&lua] { return lua["RmlFontWeight"]; }));
 		g.set("default_action_phase", sol::readonly_property([&lua] { return lua["RmlDefaultActionPhase"]; }));
-
+		// clang-format off
 	}
 
 	#undef _ENUM

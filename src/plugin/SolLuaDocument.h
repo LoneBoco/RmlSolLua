@@ -1,9 +1,8 @@
 #pragma once
 
-#include <RmlUi/Core.h>
 #include <RmlSolLua_private.h>
+#include <RmlUi/Core.h>
 #include SOLHPP
-
 
 namespace Rml::SolLua
 {
@@ -14,7 +13,6 @@ namespace Rml::SolLua
 	/// <param name="pfr">The result that holds our error.</param>
 	/// <returns>The error result.</returns>
 	sol::protected_function_result ErrorHandler(lua_State*, sol::protected_function_result pfr);
-
 
 	class SolLuaDocument : public ::Rml::ElementDocument
 	{
@@ -51,13 +49,19 @@ namespace Rml::SolLua
 		/// Gets the Lua environment attached to this document.
 		/// </summary>
 		/// <returns>A reference to the Lua environment.</returns>
-		sol::environment& GetLuaEnvironment() { return m_environment; }
+		sol::environment& GetLuaEnvironment()
+		{
+			return m_environment;
+		}
 
 		/// <summary>
 		/// Gets the Lua environment identifier attached to this document.
 		/// </summary>
 		/// <returns>A const reference to the Lua environment identifier.</returns>
-		const Rml::String& GetLuaEnvironmentIdentifier() const { return m_lua_env_identifier; }
+		const Rml::String& GetLuaEnvironmentIdentifier() const
+		{
+			return m_lua_env_identifier;
+		}
 
 	protected:
 		sol::state_view m_state;

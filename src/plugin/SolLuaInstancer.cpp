@@ -1,11 +1,10 @@
-#include <RmlUi/Core.h>
 #include <RmlSolLua_private.h>
+#include <RmlUi/Core.h>
 #include SOLHPP
 
-#include "plugin/SolLuaInstancer.h"
 #include "plugin/SolLuaDocument.h"
 #include "plugin/SolLuaEventListener.h"
-
+#include "plugin/SolLuaInstancer.h"
 
 namespace Rml::SolLua
 {
@@ -19,7 +18,6 @@ namespace Rml::SolLua
 	{
 		delete element;
 	}
-
 
 	EventListener* SolLuaEventListenerInstancer::InstanceEventListener(const String& value, Element* element)
 	{

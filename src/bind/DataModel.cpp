@@ -5,7 +5,6 @@
 
 #include "plugin/SolLuaDataModel.h"
 
-
 namespace Rml::SolLua
 {
 	namespace functions
@@ -20,16 +19,16 @@ namespace Rml::SolLua
 			self.Handle.DirtyVariable(name);
 			self.Table.set(name, value);
 		}
-	}
+	} // namespace functions
 
 	void bind_datamodel(sol::state_view& lua)
 	{
-
+		// clang-format off
 		lua.new_usertype<SolLuaDataModel>("SolLuaDataModel", sol::no_constructor,
 			sol::meta_function::index, &functions::dataModelGet,
 			sol::meta_function::new_index, &functions::dataModelSet
 		);
-
+		// clang-format on
 	}
 
 } // end namespace Rml::SolLua

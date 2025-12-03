@@ -1,16 +1,15 @@
-#include <RmlUi/Core.h>
 #include <RmlSolLua_private.h>
+#include <RmlUi/Core.h>
 #include SOLHPP
 
 #include "bind/bind.h"
-
 
 namespace Rml::SolLua
 {
 
 	void bind_element_derived(sol::state_view& lua)
 	{
-
+		// clang-format off
 		lua.new_usertype<Rml::ElementText>("ElementText", sol::no_constructor,
 			// G
 			"text", sol::property(&Rml::ElementText::GetText, &Rml::ElementText::SetText),
@@ -50,6 +49,7 @@ namespace Rml::SolLua
 			// B
 			sol::base_classes, sol::bases<Rml::Element>()
 		);
+		// clang-format on
 	}
 
 } // end namespace Rml::SolLua

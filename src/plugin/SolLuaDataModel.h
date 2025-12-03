@@ -4,10 +4,9 @@
 #include <string>
 #include <unordered_map>
 
-#include <RmlUi/Core.h>
 #include <RmlSolLua_private.h>
+#include <RmlUi/Core.h>
 #include SOLHPP
-
 
 namespace Rml::SolLua
 {
@@ -35,6 +34,7 @@ namespace Rml::SolLua
 		bool Set(void* ptr, const Rml::Variant& variant) override;
 		int Size(void* ptr) override;
 		DataVariable Child(void* ptr, const Rml::DataAddressEntry& address) override;
+
 	protected:
 		SolLuaDataModel* m_model;
 		sol::object m_object;

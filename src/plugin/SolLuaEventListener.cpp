@@ -2,19 +2,18 @@
 #include <string>
 #include <utility>
 
-#include <RmlUi/Core.h>
 #include <RmlSolLua_private.h>
+#include <RmlUi/Core.h>
 #include SOLHPP
 
 #include "SolLuaDocument.h"
 #include "SolLuaEventListener.h"
 
-
 namespace Rml::SolLua
 {
 
 	SolLuaEventListener::SolLuaEventListener(sol::state_view& lua, const Rml::String& code, Rml::Element* element)
-		: m_element(element)
+	    : m_element(element)
 	{
 		if (element == nullptr)
 			return;
@@ -23,8 +22,8 @@ namespace Rml::SolLua
 		auto* document = element->GetOwnerDocument();
 
 		// Wrap our code so we pass event, element, and document.
-		//auto f = std::format("return function (event,element,document) {} end", code);
-		Rml::String f{ "--" };
+		// auto f = std::format("return function (event,element,document) {} end", code);
+		Rml::String f{"--"};
 		if (context != nullptr)
 		{
 			f.append("[");
@@ -79,7 +78,7 @@ namespace Rml::SolLua
 	}
 
 	SolLuaEventListener::SolLuaEventListener(sol::protected_function func, Rml::Element* element)
-		: m_func(func), m_element(element)
+	    : m_func(func), m_element(element)
 	{
 	}
 

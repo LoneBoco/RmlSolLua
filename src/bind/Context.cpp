@@ -4,14 +4,13 @@
 #include <utility>
 #include <vector>
 
-#include <RmlUi/Core.h>
 #include <RmlSolLua_private.h>
+#include <RmlUi/Core.h>
 #include SOLHPP
 
 #include "bind.h"
-#include "plugin/SolLuaDocument.h"
 #include "plugin/SolLuaDataModel.h"
-
+#include "plugin/SolLuaDocument.h"
 
 namespace Rml::SolLua
 {
@@ -42,10 +41,11 @@ namespace Rml::SolLua
 		/// </summary>
 		static auto getDocument(Rml::Context& self)
 		{
-			std::function<SolLuaDocument* (int)> result = [&self](int idx) -> auto { return getDocumentBypass(self, idx); };
+			std::function<SolLuaDocument*(int)> result = [&self](int idx) -> auto
+			{ return getDocumentBypass(self, idx); };
 			return result;
 		}
-	}
+	} // namespace document
 
 	namespace datamodel
 	{
@@ -63,21 +63,23 @@ namespace Rml::SolLua
 
 				if (value.get_type() == sol::type::function)
 				{
-					data->Constructor.BindEventCallback(skey,
-						[skey, cb = sol::protected_function{ value }, state = sol::state_view{ table.lua_state() }](Rml::DataModelHandle, Rml::Event& event, const Rml::VariantList& varlist)
-						{
-							if (cb.valid())
-							{
-								std::vector<sol::object> args;
-								for (const auto& variant : varlist)
-								{
-									args.push_back(makeObjectFromVariant(&variant, state));
-								}
-								auto pfr = cb(event, sol::as_args(args));
-								if (!pfr.valid())
-									ErrorHandler(cb.lua_state(), std::move(pfr));
-							}
-						});
+					data->Constructor.BindEventCallback(
+					    skey,
+					    [skey, cb = sol::protected_function{value}, state = sol::state_view{table.lua_state()}](Rml::DataModelHandle, Rml::Event& event, const Rml::VariantList& varlist)
+					    {
+						    if (cb.valid())
+						    {
+							    std::vector<sol::object> args;
+							    for (const auto& variant : varlist)
+							    {
+								    args.push_back(makeObjectFromVariant(&variant, state));
+							    }
+							    auto pfr = cb(event, sol::as_args(args));
+							    if (!pfr.valid())
+								    ErrorHandler(cb.lua_state(), std::move(pfr));
+						    }
+					    }
+					);
 				}
 				else
 				{
@@ -96,7 +98,7 @@ namespace Rml::SolLua
 		/// <returns>A unique pointer to a Sol Lua Data Model.</returns>
 		static std::unique_ptr<SolLuaDataModel> openDataModel(Rml::Context& self, const Rml::String& name, sol::object model, sol::this_state s)
 		{
-			sol::state_view lua{ s };
+			sol::state_view lua{s};
 
 			// Create data model.
 			auto constructor = self.CreateDataModel(name);
@@ -123,7 +125,7 @@ namespace Rml::SolLua
 
 			return data;
 		}
-	}
+	} // namespace datamodel
 
 	namespace element
 	{
@@ -136,7 +138,7 @@ namespace Rml::SolLua
 		{
 			return self.GetElementAtPoint(point, &ignore);
 		}
-	}
+	} // namespace element
 
 	/// <summary>
 	/// Binds the Rml::Context class to Lua.
@@ -144,11 +146,13 @@ namespace Rml::SolLua
 	/// <param name="lua">The Lua state to bind into.</param>
 	void bind_context(sol::state_view& lua)
 	{
+		// clang-format off
 		lua.new_usertype<Rml::Context>("Context", sol::no_constructor,
 			// M
 			"AddEventListener", &Rml::Context::AddEventListener,
 			"CreateDocument", [](Rml::Context& self) { return self.CreateDocument(); },
-			"LoadDocument", [](Rml::Context& self, const Rml::String& document) {
+			"LoadDocument", [](Rml::Context& self, const Rml::String& document)
+			{
 				auto doc = self.LoadDocument(document);
 				return dynamic_cast<SolLuaDocument*>(doc);
 			},
@@ -188,6 +192,7 @@ namespace Rml::SolLua
 			"name", sol::readonly_property(&Rml::Context::GetName),
 			"root_element", sol::readonly_property(&Rml::Context::GetRootElement)
 		);
+		// clang-format on
 	}
 
 } // end namespace Rml::SolLua

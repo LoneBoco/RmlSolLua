@@ -1,15 +1,15 @@
 #include <string>
 
-#include <RmlUi/Core.h>
 #include <RmlSolLua_private.h>
+#include <RmlUi/Core.h>
 #include SOLHPP
-
 
 namespace Rml::SolLua
 {
 
 	void bind_log(sol::state_view& lua)
 	{
+		// clang-format off
 		lua.new_enum<Rml::Log::Type>("RmlLogType",
 			{
 				{ "always", Rml::Log::LT_ALWAYS },
@@ -28,6 +28,7 @@ namespace Rml::SolLua
 
 		// print("Text")
 		lua.set_function("print", [](const std::string& message) { Log::Message(Rml::Log::LT_INFO, "%s", message.c_str()); });
+		// clang-format on
 	}
 
 } // end namespace Rml::SolLua

@@ -1,9 +1,8 @@
-#include <RmlUi/Core.h>
 #include <RmlSolLua_private.h>
+#include <RmlUi/Core.h>
 #include SOLHPP
 
 #include "SolLuaDocument.h"
-
 
 namespace Rml::SolLua
 {
@@ -21,7 +20,7 @@ namespace Rml::SolLua
 	//-----------------------------------------------------
 
 	SolLuaDocument::SolLuaDocument(sol::state_view state, const Rml::String& tag, const Rml::String& lua_env_identifier)
-		: m_state(state), ElementDocument(tag), m_environment(state, sol::create, state.globals()), m_lua_env_identifier(lua_env_identifier)
+	    : m_state(state), ElementDocument(tag), m_environment(state, sol::create, state.globals()), m_lua_env_identifier(lua_env_identifier)
 	{
 	}
 
@@ -30,9 +29,10 @@ namespace Rml::SolLua
 		auto* context = GetContext();
 
 		// A context isn't present in the case of reloading stylesheets which reprocesses the whole head section.
-		if (context == nullptr) return;
+		if (context == nullptr)
+			return;
 
-		Rml::String buffer{ "--" };
+		Rml::String buffer{"--"};
 		buffer.append("[");
 		buffer.append(context->GetName());
 		buffer.append("][");

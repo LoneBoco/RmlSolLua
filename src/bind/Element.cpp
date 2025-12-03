@@ -4,14 +4,13 @@
 #include <unordered_map>
 #include <utility>
 
-#include <RmlUi/Core.h>
 #include <RmlSolLua_private.h>
+#include <RmlUi/Core.h>
 #include SOLHPP
 
 #include "bind.h"
 #include "plugin/SolLuaDocument.h"
 #include "plugin/SolLuaEventListener.h"
-
 
 namespace Rml::SolLua
 {
@@ -20,27 +19,27 @@ namespace Rml::SolLua
 	{
 		static void addEventListener(Rml::Element& self, const Rml::String& event, sol::protected_function func, const bool in_capture_phase = false)
 		{
-			auto e = new SolLuaEventListener{ func, &self };
+			auto e = new SolLuaEventListener{func, &self};
 			self.AddEventListener(event, e, in_capture_phase);
 		}
 
 		static void addEventListener(Rml::Element& self, const Rml::String& event, const Rml::String& code, sol::this_state s)
 		{
-			auto state = sol::state_view{ s };
-			auto e = new SolLuaEventListener{ state, code, &self };
+			auto state = sol::state_view{s};
+			auto e = new SolLuaEventListener{state, code, &self};
 			self.AddEventListener(event, e, false);
 		}
 
 		static void addEventListener(Rml::Element& self, const Rml::String& event, const Rml::String& code, sol::this_state s, const bool in_capture_phase)
 		{
-			auto state = sol::state_view{ s };
-			auto e = new SolLuaEventListener{ state, code, &self };
+			auto state = sol::state_view{s};
+			auto e = new SolLuaEventListener{state, code, &self};
 			self.AddEventListener(event, e, in_capture_phase);
 		}
 
 		static auto getAttribute(Rml::Element& self, const Rml::String& name, sol::this_state s)
 		{
-			sol::state_view state{ s };
+			sol::state_view state{s};
 
 			auto attr = self.GetAttribute(name);
 			return makeObjectFromVariant(attr, s);
@@ -92,7 +91,7 @@ namespace Rml::SolLua
 		{
 			return self.IsVisible();
 		}
-	}
+	} // namespace functions
 
 	namespace child
 	{
@@ -101,13 +100,14 @@ namespace Rml::SolLua
 			std::function<int()> result = std::bind(&Rml::Element::GetNumChildren, &self, false);
 			return result;
 		}
-	}
+	} // namespace child
 
 	namespace style
 	{
 		struct StyleProxyIter
 		{
-			StyleProxyIter(Rml::PropertiesIteratorView&& self) : Iterator(std::move(self)) {}
+			StyleProxyIter(Rml::PropertiesIteratorView&& self) : Iterator(std::move(self))
+			{}
 			Rml::PropertiesIteratorView Iterator;
 		};
 
@@ -125,12 +125,14 @@ namespace Rml::SolLua
 
 		struct StyleProxy
 		{
-			StyleProxy(Rml::Element& element) : m_element(element) {}
+			StyleProxy(Rml::Element& element) : m_element(element)
+			{}
 
 			std::string Get(const std::string& name)
 			{
 				auto prop = m_element.GetProperty(name);
-				if (prop == nullptr) return {};
+				if (prop == nullptr)
+					return {};
 				return prop->ToString();
 			}
 
@@ -141,7 +143,7 @@ namespace Rml::SolLua
 
 			auto Pairs()
 			{
-				StyleProxyIter iter{ std::move(m_element.IterateLocalProperties()) };
+				StyleProxyIter iter{std::move(m_element.IterateLocalProperties())};
 				return std::make_tuple(&nextPair, std::move(iter), sol::lua_nil);
 			}
 
@@ -151,12 +153,13 @@ namespace Rml::SolLua
 
 		static auto getElementStyleProxy(Rml::Element& self)
 		{
-			return StyleProxy{ self };
+			return StyleProxy{self};
 		}
-	}
+	} // namespace style
 
 	void bind_element(sol::state_view& lua)
 	{
+		// clang-format off
 		lua.new_usertype<Rml::EventListener>("EventListener", sol::no_constructor,
 			// M
 			"OnAttach", &Rml::EventListener::OnAttach,
@@ -257,7 +260,7 @@ namespace Rml::SolLua
 			"visible", sol::readonly_property(&functions::getVisible),
 			"z_index", sol::readonly_property(&Rml::Element::GetZIndex)
 		);
-
+		// clang-format on
 	}
 
 } // end namespace Rml::SolLua
