@@ -1,9 +1,8 @@
 #include <tuple>
 
-#include <RmlUi/Core.h>
 #include <RmlSolLua_private.h>
+#include <RmlUi/Core.h>
 #include SOLHPP
-
 
 namespace Rml::SolLua
 {
@@ -12,19 +11,20 @@ namespace Rml::SolLua
 	using ColourfTuple = std::tuple<float, float, float, float>;
 
 	template <typename T, int Alpha, bool PremultipliedAlpha>
-	std::tuple<T,T,T,T> getRGBA(Rml::Colour<T, Alpha, PremultipliedAlpha>& self)
+	std::tuple<T, T, T, T> getRGBA(Rml::Colour<T, Alpha, PremultipliedAlpha>& self)
 	{
-		return std::tuple<T,T,T,T>(self.red, self.green, self.blue, self.alpha);
+		return std::tuple<T, T, T, T>(self.red, self.green, self.blue, self.alpha);
 	}
 
 	template <typename T, int Alpha, bool PremultipliedAlpha>
-	void setRGBA(Rml::Colour<T, Alpha, PremultipliedAlpha>& self, std::tuple<T,T,T,T> color)
+	void setRGBA(Rml::Colour<T, Alpha, PremultipliedAlpha>& self, std::tuple<T, T, T, T> color)
 	{
 		sol::tie(self.red, self.green, self.blue, self.alpha) = color;
 	}
 
 	void bind_color(sol::state_view& lua)
 	{
+		// clang-format off
 		lua.new_usertype<Rml::Colourb>("Colourb", sol::constructors<Rml::Colourb(), Rml::Colourb(Rml::byte, Rml::byte, Rml::byte), Rml::Colourb(Rml::byte, Rml::byte, Rml::byte, Rml::byte)>(),
 			// O
 			sol::meta_function::addition, &Rml::Colourb::operator+,
@@ -56,6 +56,7 @@ namespace Rml::SolLua
 			"alpha", &Rml::Colourf::alpha,
 			"rgba", sol::property(static_cast<ColourfTuple(*)(Rml::Colourf&)>(&getRGBA), static_cast<void(*)(Rml::Colourf&, ColourfTuple)>(&setRGBA))
 		);
+		// clang-format on
 	}
 
 } // end namespace Rml::SolLua

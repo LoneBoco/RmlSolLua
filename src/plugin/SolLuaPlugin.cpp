@@ -1,23 +1,22 @@
 ﻿#include <memory>
 
-#include <RmlUi/Core.h>
 #include <RmlSolLua_private.h>
+#include <RmlUi/Core.h>
 #include SOLHPP
 
 #include "SolLuaInstancer.h"
 #include "SolLuaPlugin.h"
 
-
 namespace Rml::SolLua
 {
 
 	SolLuaPlugin::SolLuaPlugin(sol::state_view lua_state)
-		: m_lua_state{ lua_state }
+	    : m_lua_state{lua_state}
 	{
 	}
 
 	SolLuaPlugin::SolLuaPlugin(sol::state_view lua_state, const Rml::String& lua_environment_identifier)
-		: m_lua_state{ lua_state }, m_lua_env_identifier{ lua_environment_identifier }
+	    : m_lua_state{lua_state}, m_lua_env_identifier{lua_environment_identifier}
 	{
 	}
 

@@ -5,7 +5,6 @@
 
 #include "plugin/SolLuaDataModel.h"
 
-
 namespace Rml::SolLua
 {
 	namespace functions
@@ -36,18 +35,16 @@ namespace Rml::SolLua
 				proxyTableIt->second.dirty = true;
 			}
 		}
-	}
+	} // namespace functions
 
 	void bind_datamodel(sol::state_view& lua)
 	{
-		lua.new_usertype<SolLuaDataModelTableProxy>(
-		    "SolLuaDataModelTableProxy",
-		    sol::no_constructor,
-		    sol::meta_function::index,
-		    &functions::dataModelGet,
-		    sol::meta_function::new_index,
-		    &functions::dataModelSet
+		// clang-format off
+		lua.new_usertype<SolLuaDataModelTableProxy>("SolLuaDataModelTableProxy", sol::no_constructor,
+		    sol::meta_function::index, &functions::dataModelGet,
+		    sol::meta_function::new_index, &functions::dataModelSet
 		);
+		// clang-format on
 	}
 
 } // end namespace Rml::SolLua

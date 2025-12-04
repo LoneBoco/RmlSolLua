@@ -3,14 +3,13 @@
 #include <string>
 #include <utility>
 
-#include <RmlUi/Core.h>
 #include <RmlSolLua_private.h>
+#include <RmlUi/Core.h>
 #include SOLHPP
 
 #include "bind.h"
-#include "plugin/SolLuaDocument.h"
 #include "plugin/SolLuaDataModel.h"
-
+#include "plugin/SolLuaDocument.h"
 
 namespace Rml::SolLua
 {
@@ -85,7 +84,7 @@ namespace Rml::SolLua
 			// Alias data model to it's top level proxy.
 			return {dataModel, &dataModel->topLevelProxy()};
 		}
-	}
+	} // namespace datamodel
 
 	namespace element
 	{
@@ -98,7 +97,7 @@ namespace Rml::SolLua
 		{
 			return self.GetElementAtPoint(point, &ignore);
 		}
-	}
+	} // namespace element
 
 	/// <summary>
 	/// Binds the Rml::Context class to Lua.
@@ -106,71 +105,41 @@ namespace Rml::SolLua
 	/// <param name="lua">The Lua state to bind into.</param>
 	void bind_context(sol::state_view& lua)
 	{
-		lua.new_usertype<Rml::Context>(
-		    "Context",
-		    sol::no_constructor,
-		    // M
-		    "AddEventListener",
-		    &Rml::Context::AddEventListener,
-		    "CreateDocument",
-		    [](Rml::Context& self)
-		    {
-			    return self.CreateDocument();
-		    },
-		    "LoadDocument",
-		    [](Rml::Context& self, const Rml::String& document)
-		    {
-			    auto doc = self.LoadDocument(document);
-			    return dynamic_cast<SolLuaDocument*>(doc);
-		    },
-		    "GetDocument",
-		    &document::getDocumentBypassString,
-		    "Render",
-		    &Rml::Context::Render,
-		    "UnloadAllDocuments",
-		    &Rml::Context::UnloadAllDocuments,
-		    "UnloadDocument",
-		    &Rml::Context::UnloadDocument,
-		    "Update",
-		    &Rml::Context::Update,
-		    "OpenDataModel",
-		    &datamodel::openDataModel,
-		    "ProcessMouseMove",
-		    &Rml::Context::ProcessMouseMove,
-		    "ProcessMouseButtonDown",
-		    &Rml::Context::ProcessMouseButtonDown,
-		    "ProcessMouseButtonUp",
-		    &Rml::Context::ProcessMouseButtonUp,
-		    "ProcessMouseWheel",
-		    sol::resolve<bool(float, int)>(&Rml::Context::ProcessMouseWheel),
-		    "ProcessMouseLeave",
-		    &Rml::Context::ProcessMouseLeave,
-		    "IsMouseInteracting",
-		    &Rml::Context::IsMouseInteracting,
-		    "ProcessKeyDown",
-		    &Rml::Context::ProcessKeyDown,
-		    "ProcessKeyUp",
-		    &Rml::Context::ProcessKeyUp,
-		    "ProcessTextInput",
-		    sol::resolve<bool(const Rml::String&)>(&Rml::Context::ProcessTextInput),
-		    //--
-		    "EnableMouseCursor",
-		    &Rml::Context::EnableMouseCursor,
-		    "ActivateTheme",
-		    &Rml::Context::ActivateTheme,
-		    "IsThemeActive",
-		    &Rml::Context::IsThemeActive,
-		    "GetElementAtPoint",
-		    sol::overload(&element::getElementAtPoint1, &element::getElementAtPoint2),
-		    "PullDocumentToFront",
-		    &Rml::Context::PullDocumentToFront,
-		    "PushDocumentToBack",
-		    &Rml::Context::PushDocumentToBack,
-		    "UnfocusDocument",
-		    &Rml::Context::UnfocusDocument,
-		    "RemoveDataModel",
-		    &Rml::Context::RemoveDataModel,
-		    // RemoveEventListener
+		// clang-format off
+		lua.new_usertype<Rml::Context>("Context", sol::no_constructor,
+			// M
+			"AddEventListener", &Rml::Context::AddEventListener,
+			"CreateDocument", [](Rml::Context& self) { return self.CreateDocument(); },
+			"LoadDocument", [](Rml::Context& self, const Rml::String& document)
+			{
+				auto doc = self.LoadDocument(document);
+				return dynamic_cast<SolLuaDocument*>(doc);
+			},
+			"GetDocument", &document::getDocumentBypassString,
+			"Render", &Rml::Context::Render,
+			"UnloadAllDocuments", &Rml::Context::UnloadAllDocuments,
+			"UnloadDocument", &Rml::Context::UnloadDocument,
+			"Update", &Rml::Context::Update,
+			"OpenDataModel", &datamodel::openDataModel,
+			"ProcessMouseMove", &Rml::Context::ProcessMouseMove,
+			"ProcessMouseButtonDown", &Rml::Context::ProcessMouseButtonDown,
+			"ProcessMouseButtonUp", &Rml::Context::ProcessMouseButtonUp,
+			"ProcessMouseWheel", sol::resolve<bool(float, int)>(&Rml::Context::ProcessMouseWheel),
+			"ProcessMouseLeave", &Rml::Context::ProcessMouseLeave,
+			"IsMouseInteracting", &Rml::Context::IsMouseInteracting,
+			"ProcessKeyDown", &Rml::Context::ProcessKeyDown,
+			"ProcessKeyUp", &Rml::Context::ProcessKeyUp,
+			"ProcessTextInput", sol::resolve<bool(const Rml::String&)>(&Rml::Context::ProcessTextInput),
+			//--
+			"EnableMouseCursor", &Rml::Context::EnableMouseCursor,
+			"ActivateTheme", &Rml::Context::ActivateTheme,
+			"IsThemeActive", &Rml::Context::IsThemeActive,
+			"GetElementAtPoint", sol::overload(&element::getElementAtPoint1, &element::getElementAtPoint2),
+			"PullDocumentToFront", &Rml::Context::PullDocumentToFront,
+			"PushDocumentToBack", &Rml::Context::PushDocumentToBack,
+			"UnfocusDocument", &Rml::Context::UnfocusDocument,
+		    "RemoveDataModel", &Rml::Context::RemoveDataModel,
+			// RemoveEventListener
 
 		    // G+S
 		    "dimensions",
@@ -194,6 +163,7 @@ namespace Rml::SolLua
 		    "root_element",
 		    sol::readonly_property(&Rml::Context::GetRootElement)
 		);
+		// clang-format on
 	}
 
 } // end namespace Rml::SolLua

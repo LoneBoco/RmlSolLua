@@ -1,11 +1,10 @@
 #include <utility>
 
-#include <RmlUi/Core.h>
 #include <RmlSolLua_private.h>
+#include <RmlUi/Core.h>
 #include SOLHPP
 
 #include "bind.h"
-
 
 namespace Rml::SolLua
 {
@@ -33,10 +32,11 @@ namespace Rml::SolLua
 
 			return result;
 		}
-	}
+	} // namespace functions
 
 	void bind_event(sol::state_view& lua)
 	{
+		// clang-format off
 		//--
 		lua.new_enum("RmlEventPhase",
 			"None", Rml::EventPhase::None,
@@ -63,6 +63,7 @@ namespace Rml::SolLua
 			"propagating", sol::readonly_property(&Rml::Event::IsPropagating),
 			"immediate_propagating", sol::readonly_property(&Rml::Event::IsImmediatePropagating)
 		);
+		// clang-format on
 	}
 
 } // end namespace Rml::SolLua

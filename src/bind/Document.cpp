@@ -1,11 +1,10 @@
 #include <utility>
 
-#include <RmlUi/Core.h>
 #include <RmlSolLua_private.h>
+#include <RmlUi/Core.h>
 #include SOLHPP
 
 #include "plugin/SolLuaDocument.h"
-
 
 namespace Rml::SolLua
 {
@@ -63,10 +62,11 @@ namespace Rml::SolLua
 			auto combined = styleSheet->CombineStyleSheetContainer(*self.GetStyleSheetContainer());
 			self.SetStyleSheetContainer(std::move(combined));
 		}
-	}
+	} // namespace document
 
 	void bind_document(sol::state_view& lua)
 	{
+		// clang-format off
 		lua.new_enum<Rml::ModalFlag>("RmlModalFlag",
 			{
 				{ "None", Rml::ModalFlag::None },
@@ -112,6 +112,7 @@ namespace Rml::SolLua
 			// B
 			sol::base_classes, sol::bases<Rml::Element>()
 		);
+		// clang-format on
 	}
 
 } // end namespace Rml::SolLua

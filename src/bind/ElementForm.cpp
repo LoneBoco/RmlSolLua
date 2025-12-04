@@ -4,10 +4,9 @@
 #include <utility>
 #include <vector>
 
-#include <RmlUi/Core.h>
 #include <RmlSolLua_private.h>
+#include <RmlUi/Core.h>
 #include SOLHPP
-
 
 namespace Rml::SolLua
 {
@@ -18,7 +17,7 @@ namespace Rml::SolLua
 		{
 			return self.HasAttribute(name);
 		}
-		#define HASATTRGETTER(S, N) [](S& self) { return self.HasAttribute(N); }
+#define HASATTRGETTER(S, N) [](S& self) { return self.HasAttribute(N); }
 
 		template <typename T>
 		static inline constexpr T getAttributeWithDefault(auto& self, const std::string& name, T def)
@@ -26,7 +25,7 @@ namespace Rml::SolLua
 			auto attr = self.GetAttribute<T>(name, def);
 			return attr;
 		}
-		#define GETATTRGETTER(S, N, D) [](S& self) { return functions::getAttributeWithDefault(self, N, D); }
+#define GETATTRGETTER(S, N, D) [](S& self) { return functions::getAttributeWithDefault(self, N, D); }
 
 		static inline constexpr void setAttribute(auto& self, const std::string& name, const auto& value)
 		{
@@ -34,15 +33,16 @@ namespace Rml::SolLua
 			{
 				if (value)
 					self.SetAttribute(name, true);
-				else self.RemoveAttribute(name);
+				else
+					self.RemoveAttribute(name);
 			}
 			else
 			{
 				self.SetAttribute(name, value);
 			}
 		}
-		#define SETATTR(S, N, D) [](S& self, const D& value) { functions::setAttribute(self, N, value); }
-	}
+#define SETATTR(S, N, D) [](S& self, const D& value) { functions::setAttribute(self, N, value); }
+	} // namespace functions
 
 	namespace input
 	{
@@ -53,7 +53,7 @@ namespace Rml::SolLua
 			self.GetSelection(&start, &end, &text);
 			return std::make_tuple(start, end, text);
 		}
-	}
+	} // namespace input
 
 	namespace options
 	{
@@ -65,15 +65,16 @@ namespace Rml::SolLua
 
 		struct SelectOptionsProxy
 		{
-			SelectOptionsProxy(Rml::ElementFormControlSelect& element) : m_element(element) {}
+			SelectOptionsProxy(Rml::ElementFormControlSelect& element) : m_element(element)
+			{}
 
 			SelectOptionsProxyNode Get(int index) const
 			{
 				auto element = m_element.GetOption(index);
 				if (!element)
-					return SelectOptionsProxyNode{ nullptr, {} };
+					return SelectOptionsProxyNode{nullptr, {}};
 
-				return SelectOptionsProxyNode{ .Element = element, .Value = element->GetAttribute("value", std::string{}) };
+				return SelectOptionsProxyNode{.Element = element, .Value = element->GetAttribute("value", std::string{})};
 			}
 
 			std::vector<SelectOptionsProxyNode> Pairs() const
@@ -82,7 +83,7 @@ namespace Rml::SolLua
 				int i = 0;
 				while (auto element = m_element.GetOption(i++))
 				{
-					result.push_back({ .Element = element, .Value = element->GetAttribute("value", std::string{}) });
+					result.push_back({.Element = element, .Value = element->GetAttribute("value", std::string{})});
 				}
 
 				return result;
@@ -94,9 +95,9 @@ namespace Rml::SolLua
 
 		static inline auto getOptionsProxy(Rml::ElementFormControlSelect& self)
 		{
-			return SelectOptionsProxy{ self };
+			return SelectOptionsProxy{self};
 		}
-	}
+	} // namespace options
 
 	namespace submit
 	{
@@ -114,7 +115,7 @@ namespace Rml::SolLua
 		{
 			self.Submit(name, value);
 		}
-	}
+	} // namespace submit
 
 	namespace textarea
 	{
@@ -125,11 +126,11 @@ namespace Rml::SolLua
 			self.GetSelection(&start, &end, &text);
 			return std::make_tuple(start, end, text);
 		}
-	}
+	} // namespace textarea
 
 	void bind_element_form(sol::state_view& lua)
 	{
-
+		// clang-format off
 		lua.new_usertype<Rml::ElementForm>("ElementForm", sol::no_constructor,
 			// M
 			"Submit", sol::overload(&submit::submit, &submit::submitName, &submit::submitNameValue),
@@ -224,7 +225,7 @@ namespace Rml::SolLua
 			// B
 			sol::base_classes, sol::bases<Rml::ElementFormControl, Rml::Element>()
 		);
-
+		// clang-format on
 	}
 
 } // end namespace Rml::SolLua

@@ -1,13 +1,13 @@
-#include <RmlUi/Core.h>
 #include <RmlSolLua_private.h>
+#include <RmlUi/Core.h>
 #include SOLHPP
-
 
 namespace Rml::SolLua
 {
 
 	void bind_vector(sol::state_view& lua)
 	{
+		// clang-format off
 		lua.new_usertype<Rml::Vector2i>("Vector2i", sol::constructors<Rml::Vector2i(), Rml::Vector2i(int, int)>(),
 			// O
 			sol::meta_function::addition, &Rml::Vector2i::operator+,
@@ -51,6 +51,7 @@ namespace Rml::SolLua
 			// G
 			"magnitude", &Rml::Vector2f::Magnitude
 		);
+		// clang-format on
 	}
 
 } // end namespace Rml::SolLua

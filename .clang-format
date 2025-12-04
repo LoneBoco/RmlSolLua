@@ -1,0 +1,67 @@
+---
+Language: Cpp
+Standard: Latest
+BasedOnStyle: LLVM
+
+# Indentation
+IndentWidth: 4
+TabWidth: 4
+UseTab: ForIndentation
+NamespaceIndentation: All
+IndentCaseLabels: true
+AccessModifierOffset: -4
+
+# Alignment
+AlignAfterOpenBracket: BlockIndent
+BinPackArguments: false
+PointerAlignment: Left
+
+# Brace placement: match Visual C++ "new line before open brace" behavior
+BreakBeforeBraces: Custom
+BraceWrapping:
+    AfterCaseLabel: true
+    AfterClass: true
+    AfterControlStatement: Always
+    AfterEnum: true
+    AfterFunction: true
+    AfterNamespace: true
+    AfterStruct: true
+    AfterUnion: true
+    AfterExternBlock: true
+    BeforeCatch: true
+    BeforeElse: true
+    BeforeLambdaBody: true
+    BeforeWhile: true
+    IndentBraces: false
+    SplitEmptyFunction: false
+    SplitEmptyRecord: false
+    SplitEmptyNamespace: false
+
+# Line breaks
+#BreakBeforeCloseBracketBracedList: true
+#BreakBeforeCloseBracketFunction: true
+#BreakBeforeCloseBracketLoop: true
+#BreakBeforeCloseBracketSwitch: true
+BreakBeforeConceptDeclarations: true
+#BreakBeforeTemplateCloser: true
+BreakBeforeTernaryOperators: true
+BreakConstructorInitializers: BeforeColon
+
+# Keep short one-line blocks where they are (preserve one-liners)
+AllowShortBlocksOnASingleLine: Never
+AllowShortIfStatementsOnASingleLine: Never
+AllowShortFunctionsOnASingleLine: None
+
+# Spaces
+SpaceBeforeParens: ControlStatements
+SpacesInParentheses: false
+SpacesInSquareBrackets: false
+SpacesInCStyleCastParentheses: false
+SpacesInContainerLiterals: true
+
+# Include handling
+SortIncludes: true
+IncludeBlocks: Preserve
+
+# Misc
+ColumnLimit: 0

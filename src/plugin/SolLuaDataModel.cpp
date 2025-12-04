@@ -1,7 +1,7 @@
 #include <string>
 
-#include <RmlUi/Core.h>
 #include <RmlSolLua_private.h>
+#include <RmlUi/Core.h>
 #include SOLHPP
 
 #include "SolLuaDataModel.h"
@@ -258,6 +258,7 @@ namespace Rml::SolLua
 		sol::object obj;
 		if (address.index != -1)
 		{
+
 			if (address.index < 0 || address.index >= t.size())
 			{
 				Rml::Log::Message(Rml::Log::LT_ERROR, "Data array index out of bounds.");

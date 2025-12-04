@@ -13,27 +13,30 @@
 
 #include <RmlUi/Core.h>
 
-
 #ifndef RMLUI_NO_THIRDPARTY_CONTAINERS
 template <typename Key, typename Value>
-struct sol::is_container<Rml::UnorderedMap<Key, Value>> : std::true_type {};
+struct sol::is_container<Rml::UnorderedMap<Key, Value>> : std::true_type
+{};
 
 template <typename Key, typename Value>
-struct sol::is_container<Rml::SmallUnorderedMap<Key, Value>> : std::true_type {};
+struct sol::is_container<Rml::SmallUnorderedMap<Key, Value>> : std::true_type
+{};
 
 template <typename T>
-struct sol::is_container<Rml::UnorderedSet<T>> : std::true_type {};
+struct sol::is_container<Rml::UnorderedSet<T>> : std::true_type
+{};
 
 template <typename T>
-struct sol::is_container<Rml::SmallUnorderedSet<T>> : std::true_type {};
+struct sol::is_container<Rml::SmallUnorderedSet<T>> : std::true_type
+{};
 
-//template <typename T>
-//struct sol::is_container<Rml::SmallOrderedSet<T>> : std::true_type {};
+// template <typename T>
+// struct sol::is_container<Rml::SmallOrderedSet<T>> : std::true_type {};
 
 template <>
-struct sol::is_container<Rml::ElementList> : std::true_type {};
+struct sol::is_container<Rml::ElementList> : std::true_type
+{};
 #endif
-
 
 namespace Rml::SolLua
 {
@@ -42,7 +45,6 @@ namespace Rml::SolLua
 	using SolObjectMap = std::unordered_map<std::string, sol::object>;
 
 } // end namespace Rml::SolLua
-
 
 namespace Rml::SolLua
 {
@@ -63,7 +65,7 @@ namespace Rml::SolLua
 			using reference = T*&;
 
 			Iter(const TableIndexedIterator<T>* owner, int pos)
-				: m_owner{ owner }, m_pos{ pos }
+			    : m_owner{owner}, m_pos{pos}
 			{}
 
 			auto operator++() const
@@ -103,8 +105,8 @@ namespace Rml::SolLua
 		/// <param name="element">The element we are pulling data from.</param>
 		/// <param name="get">The function to get new data (ex: Rml::Element::GetChild). Must be of type std::function<T* (int)>.</param>
 		/// <param name="max">The function to get the max number of items (ex: Rml::Element::GetNumChildren). Must be of type std::function<int ()>.</param>
-		TableIndexedIterator(std::function<T* (int)> get, std::function<int()> max)
-			: m_func_get{ get }, m_func_max{ max }
+		TableIndexedIterator(std::function<T*(int)> get, std::function<int()> max)
+		    : m_func_get{get}, m_func_max{max}
 		{
 			assert((m_func_get) && (m_func_max));
 		}
@@ -129,14 +131,14 @@ namespace Rml::SolLua
 		friend Iter;
 
 	private:
-		std::function<T* (int)> m_func_get;
-		std::function<int ()> m_func_max;
+		std::function<T*(int)> m_func_get;
+		std::function<int()> m_func_max;
 	};
 
 	template <typename T, typename S, auto G, auto M>
 	sol::as_table_t<TableIndexedIterator<T>> getIndexedTable(S& self)
 	{
-		std::function<T* (int)> get;
+		std::function<T*(int)> get;
 		if constexpr (std::is_member_function_pointer_v<decltype(G)>)
 		{
 			// Straight member function pointer like Rml::Element::GetChild.
@@ -162,14 +164,14 @@ namespace Rml::SolLua
 			max = f;
 		}
 
-		TableIndexedIterator<T> result{ get, max };
+		TableIndexedIterator<T> result{get, max};
 		return sol::as_table(result);
 	}
 
 	template <typename T, auto G, auto M>
 	sol::as_table_t<TableIndexedIterator<T>> getIndexedTable()
 	{
-		std::function<T* (int)> get;
+		std::function<T*(int)> get;
 		std::function<int()> max;
 
 		// A helper function to convert the normal getter to type std::function<T* (int)>.
@@ -180,12 +182,11 @@ namespace Rml::SolLua
 		auto fmax = std::invoke(M);
 		max = fmax;
 
-		TableIndexedIterator<T> result{ get, max };
+		TableIndexedIterator<T> result{get, max};
 		return sol::as_table(result);
 	}
 
 } // end namespace Rml::SolLua
-
 
 namespace Rml::SolLua
 {
