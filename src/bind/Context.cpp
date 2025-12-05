@@ -57,7 +57,7 @@ namespace Rml::SolLua
 		/// <param name="model">The table to bind as the data model.</param>
 		/// <param name="s">Lua state.</param>
 		/// <returns>A unique pointer to a Sol Lua Data Model.</returns>
-		static std::shared_ptr<SolLuaDataModelTableProxy>
+		static std::shared_ptr<SolLuaDataModelProxy>
 		openDataModel(Rml::Context& self, const Rml::String& name, sol::object model, sol::this_state s)
 		{
 			if (model.get_type() != sol::type::table)
@@ -142,26 +142,15 @@ namespace Rml::SolLua
 			// RemoveEventListener
 
 		    // G+S
-		    "dimensions",
-		    sol::property(&Rml::Context::GetDimensions, &Rml::Context::SetDimensions),
-		    "dp_ratio",
-		    sol::property(&Rml::Context::GetDensityIndependentPixelRatio, &Rml::Context::SetDensityIndependentPixelRatio),
+		    "dimensions", sol::property(&Rml::Context::GetDimensions, &Rml::Context::SetDimensions),
+		    "dp_ratio", sol::property(&Rml::Context::GetDensityIndependentPixelRatio, &Rml::Context::SetDensityIndependentPixelRatio),
 
 		    // G
-		    "documents",
-		    sol::readonly_property(&getIndexedTable<
-		                           SolLuaDocument,
-		                           Rml::Context,
-		                           &document::getDocument,
-		                           &Rml::Context::GetNumDocuments>),
-		    "focus_element",
-		    sol::readonly_property(&Rml::Context::GetFocusElement),
-		    "hover_element",
-		    sol::readonly_property(&Rml::Context::GetHoverElement),
-		    "name",
-		    sol::readonly_property(&Rml::Context::GetName),
-		    "root_element",
-		    sol::readonly_property(&Rml::Context::GetRootElement)
+		    "documents", sol::readonly_property(&getIndexedTable<SolLuaDocument, Rml::Context, &document::getDocument, &Rml::Context::GetNumDocuments>),
+		    "focus_element", sol::readonly_property(&Rml::Context::GetFocusElement),
+		    "hover_element", sol::readonly_property(&Rml::Context::GetHoverElement),
+		    "name", sol::readonly_property(&Rml::Context::GetName),
+		    "root_element", sol::readonly_property(&Rml::Context::GetRootElement)
 		);
 		// clang-format on
 	}

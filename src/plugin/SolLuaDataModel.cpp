@@ -39,127 +39,29 @@ namespace Rml::SolLua
 
 	SolLuaDataModel::SolLuaDataModel(const sol::table& model, const Rml::DataModelConstructor& constructor)
 	    : m_constructor(constructor),
-	      m_topLevelProxy{.model = this, .objectDef = std::make_unique<SolLuaObjectDef>(model)}
+	      m_topLevelProxy(this, model)
 	{
-		bindTable(m_topLevelProxy, true);
+		m_topLevelProxy.bind(true);
 	}
 
-	Rml::DataModelHandle SolLuaDataModel::modelHandle() const
+	Rml::DataModelConstructor SolLuaDataModel::constructor() const
 	{
-		return m_constructor.GetModelHandle();
+		return m_constructor;
 	}
 
-	SolLuaDataModelTableProxy& SolLuaDataModel::topLevelProxy()
+	SolLuaDataModelProxy& SolLuaDataModel::topLevelProxy()
 	{
 		return m_topLevelProxy;
 	}
 
-	void SolLuaDataModel::rebindNestedTable(SolLuaDataModelTableProxy& nestedProxy, const sol::table& newTable)
-	{
-		assert(nestedProxy.dirty);
-
-		nestedProxy.children.clear();              // Orphan existing children
-		nestedProxy.objectDef->setTable(newTable); // Update table
-		bindTable(nestedProxy, false);             // Nested rebind
-
-		nestedProxy.dirty = false;
-	}
-
-	void SolLuaDataModel::bindTable(SolLuaDataModelTableProxy& proxy, bool topLevel)
-	{
-		for (auto& [key, value] : proxy.objectDef->table())
-		{
-			std::string skey;
-			if (key.get_type() == sol::type::string)
-			{
-				skey = key.as<std::string>();
-			}
-			else if (key.get_type() == sol::type::number)
-			{
-				// Assign a pseudo-key for numeric indices
-				// TODO: check if the number is an integer?
-				skey = std::format("[{}]", key.as<int>() - 1); // Lua is 1-based
-			}
-			else
-			{
-				Rml::Log::Message(Log::LT_ERROR, "Data model key with type other than string or integer is unsupported");
-				return;
-			}
-
-			if (value.get_type() == sol::type::table)
-			{
-				auto childProxyIt = proxy.children.emplace(
-				    skey,
-				    SolLuaDataModelTableProxy{.model = this, .objectDef = std::make_unique<SolLuaObjectDef>(value.as<sol::table>())}
-				);
-				assert(childProxyIt.second);
-				childProxyIt.first->second.topLevelKey = proxy.topLevelKey ? proxy.topLevelKey : &childProxyIt.first->first;
-				bindTable(childProxyIt.first->second, false);
-				if (topLevel && skey[0] != '[')
-				{
-					// Only bind top-level non-integer keys
-					m_constructor.BindCustomDataVariable(
-					    skey, Rml::DataVariable(childProxyIt.first->second.objectDef.get(), &childProxyIt.first->second)
-					);
-				}
-			}
-			else
-			{
-				if (value.get_type() == sol::type::function)
-				{
-					if (!topLevel)
-					{
-						Rml::Log::Message(
-						    Log::LT_WARNING, "Event callbacks are only allowed at the top level of a data model."
-						);
-						continue;
-					}
-
-					m_constructor.BindEventCallback(
-					    skey,
-					    [cb = sol::protected_function{value},
-					     state = sol::state_view{proxy.objectDef->table().lua_state(
-					     )}](Rml::DataModelHandle, Rml::Event& event, const Rml::VariantList& varlist)
-					    {
-						    if (cb.valid())
-						    {
-							    std::vector<sol::object> args;
-							    for (const auto& variant : varlist)
-							    {
-								    args.push_back(makeObjectFromVariant(&variant, state));
-							    }
-							    auto pfr = cb(event, sol::as_args(args));
-							    if (!pfr.valid())
-							    {
-								    ErrorHandler(cb.lua_state(), std::move(pfr));
-							    }
-						    }
-					    }
-					);
-				}
-				else
-				{
-					auto it = proxy.keys.emplace(skey);
-					if (topLevel && skey[0] != '[')
-					{
-						// Only bind top-level non-integer keys
-						m_constructor.BindCustomDataVariable(
-						    skey, Rml::DataVariable(proxy.objectDef.get(), const_cast<char*>(it.first->data()))
-						);
-					}
-				}
-			}
-		}
-	}
-
-	/// SolLuaObjectDef
-	SolLuaObjectDef::SolLuaObjectDef(sol::table table)
+	/// SolLuaDatamodelProxy
+	SolLuaDataModelProxy::SolLuaDataModelProxy(SolLuaDataModel* datamodel, sol::table table)
 	    : VariableDefinition(DataVariableType::Scalar),
-	      m_table(std::move(table))
+	      m_datamodel(datamodel), m_table(std::move(table))
 	{
 	}
 
-	bool SolLuaObjectDef::Get(void* ptr, Rml::Variant& variant)
+	bool SolLuaDataModelProxy::Get(void* ptr, Rml::Variant& variant)
 	{
 		sol::object obj;
 		auto* key = const_cast<const char*>(static_cast<char*>(ptr));
@@ -168,7 +70,7 @@ namespace Rml::SolLua
 			// Pseudo-key: access by index
 			int idx;
 			std::from_chars_result result = std::from_chars(key + 1, key + std::strlen(key) - 1, idx);
-			assert(result.ec == std::errc{} && "Rml failed to sanitize user input to be well-formed");
+			RMLUI_ASSERT(result.ec == std::errc{} && "Rml failed to sanitize user input to be well-formed");
 			if (idx < 0 || idx >= m_table.size())
 			{
 				Rml::Log::Message(Rml::Log::LT_ERROR, "Data array index out of bounds.");
@@ -217,7 +119,7 @@ namespace Rml::SolLua
 		return true;
 	}
 
-	bool SolLuaObjectDef::Set(void* ptr, const Rml::Variant& variant)
+	bool SolLuaDataModelProxy::Set(void* ptr, const Rml::Variant& variant)
 	{
 		auto* key = const_cast<const char*>(static_cast<char*>(ptr));
 		if (key[0] == '[')
@@ -225,7 +127,7 @@ namespace Rml::SolLua
 			// Pseudo-key: access by index
 			int idx;
 			std::from_chars_result result = std::from_chars(key + 1, key + std::strlen(key) - 1, idx);
-			assert(result.ec == std::errc{} && "Rml failed to sanitize user input to be well-formed");
+			RMLUI_ASSERT(result.ec == std::errc{} && "Rml failed to sanitize user input to be well-formed");
 			if (idx < 0 || idx >= m_table.size())
 			{
 				Rml::Log::Message(Rml::Log::LT_ERROR, "Data array index out of bounds.");
@@ -242,69 +144,178 @@ namespace Rml::SolLua
 		return true;
 	}
 
-	int SolLuaObjectDef::Size(void* ptr)
+	int SolLuaDataModelProxy::Size(void* ptr)
 	{
-		// TODO: can size be called on non-proxy objects?
-		SolLuaDataModelTableProxy& proxy = *static_cast<SolLuaDataModelTableProxy*>(ptr);
-		return static_cast<int>(proxy.objectDef->table().size());
+		SolLuaDataModelProxy& proxy = *static_cast<SolLuaDataModelProxy*>(ptr);
+		return static_cast<int>(proxy.m_table.size());
 	}
 
-	DataVariable SolLuaObjectDef::Child(void* ptr, const Rml::DataAddressEntry& address)
+	DataVariable SolLuaDataModelProxy::Child(void* ptr, const Rml::DataAddressEntry& address)
 	{
-		SolLuaDataModelTableProxy& proxy = *static_cast<SolLuaDataModelTableProxy*>(ptr);
-		sol::table t = proxy.objectDef->table();
+		SolLuaDataModelProxy& proxy = *static_cast<SolLuaDataModelProxy*>(ptr);
 
 		std::string skey;
 		sol::object obj;
 		if (address.index != -1)
 		{
 
-			if (address.index < 0 || address.index >= t.size())
+			if (address.index < 0 || address.index >= m_table.size())
 			{
 				Rml::Log::Message(Rml::Log::LT_ERROR, "Data array index out of bounds.");
 				return {};
 			}
 			// Access by index
 			skey = std::format("[{}]", address.index);
-			obj = t[address.index + 1]; // Lua is 1-based
+			obj = m_table[address.index + 1]; // Lua is 1-based
 		}
 		else
 		{
 			if (address.name == "size")
 			{
-				return MakeLiteralIntVariable(t.size());
+				return MakeLiteralIntVariable(m_table.size());
 			}
 
 			skey = address.name;
-			obj = proxy.objectDef->table()[address.name];
+			obj = proxy.m_table[address.name];
 		}
 
 		if (obj.get_type() == sol::type::table)
 		{
-			auto it = proxy.children.find(skey);
-			assert(it != proxy.children.end());
-			if (it->second.dirty)
+			auto it = proxy.m_children.find(skey);
+			RMLUI_ASSERT(it != proxy.m_children.end());
+			if (it->second.m_dirty)
 			{
-				proxy.model->rebindNestedTable(it->second, obj);
+				it->second.rebind(obj);
 			}
 
 			// Pass proxy as ptr to be used in `Child` calls further down the chain
-			return {it->second.objectDef.get(), &it->second};
+			return {&it->second, &it->second};
 		}
 
-		auto it = proxy.keys.find(skey);
-		assert(it != proxy.keys.end());
-		return {proxy.objectDef.get(), const_cast<char*>(it->data())};
+		auto it = proxy.m_keys.find(skey);
+		RMLUI_ASSERT(it != proxy.m_keys.end());
+		return {&proxy, const_cast<char*>(it->data())};
 	}
 
-	sol::table& SolLuaObjectDef::table()
+	sol::object SolLuaDataModelProxy::get(const sol::object& key) const
 	{
-		return m_table;
+		std::string skey = key.is<std::string>() ? key.as<std::string>() : std::format("[{}]", key.as<int>() - 1);
+		auto proxyIt = m_children.find(skey);
+		if (proxyIt != m_children.end())
+		{
+			return sol::make_object_userdata(m_table.lua_state(), &proxyIt->second);
+		}
+		return m_table.get<sol::object>(key);
 	}
 
-	void SolLuaObjectDef::setTable(sol::table table)
+	void SolLuaDataModelProxy::set(const sol::object& key, sol::object value)
 	{
-		m_table = std::move(table);
+		std::string skey = key.is<std::string>() ? key.as<std::string>() : std::format("[{}]", key.as<int>() - 1);
+		m_table.set(key, value);
+		m_datamodel->constructor().GetModelHandle().DirtyVariable(m_topLevelKey ? *m_topLevelKey : skey);
+
+		if (value.get_type() == sol::type::table)
+		{
+			// Also dirty nested table's proxy
+			auto proxyTableIt = m_children.find(skey);
+			RMLUI_ASSERT(proxyTableIt != m_children.end());
+			proxyTableIt->second.m_dirty = true;
+		}
+	}
+
+	void SolLuaDataModelProxy::bind(bool topLevel)
+	{
+		for (auto& [key, value] : m_table)
+		{
+			std::string skey;
+			if (key.get_type() == sol::type::string)
+			{
+				skey = key.as<std::string>();
+			}
+			else if (key.get_type() == sol::type::number)
+			{
+				// Assign a pseudo-key for numeric indices
+				// TODO: check if the number is an integer?
+				skey = std::format("[{}]", key.as<int>() - 1); // Lua is 1-based
+			}
+			else
+			{
+				Rml::Log::Message(Log::LT_ERROR, "Data model key with type other than string or integer is unsupported");
+				return;
+			}
+
+			if (value.get_type() == sol::type::table)
+			{
+				auto childProxyIt = m_children.try_emplace(skey, m_datamodel, value.as<sol::table>());
+				RMLUI_ASSERT(childProxyIt.second);
+				childProxyIt.first->second.m_topLevelKey = m_topLevelKey ? m_topLevelKey : &childProxyIt.first->first;
+				childProxyIt.first->second.bind(false);
+				if (topLevel && skey[0] != '[')
+				{
+					// Only bind top-level non-integer keys
+					m_datamodel->constructor().BindCustomDataVariable(
+					    skey, Rml::DataVariable(&childProxyIt.first->second, &childProxyIt.first->second)
+					);
+				}
+			}
+			else
+			{
+				if (value.get_type() == sol::type::function)
+				{
+					if (!topLevel)
+					{
+						Rml::Log::Message(
+						    Log::LT_WARNING, "Event callbacks are only allowed at the top level of a data model."
+						);
+						continue;
+					}
+
+					m_datamodel->constructor().BindEventCallback(
+					    skey,
+					    [cb = sol::protected_function{value},
+					     state = sol::state_view{m_table.lua_state(
+					     )}](Rml::DataModelHandle, Rml::Event& event, const Rml::VariantList& varlist)
+					    {
+						    if (cb.valid())
+						    {
+							    std::vector<sol::object> args;
+							    for (const auto& variant : varlist)
+							    {
+								    args.push_back(makeObjectFromVariant(&variant, state));
+							    }
+							    auto pfr = cb(event, sol::as_args(args));
+							    if (!pfr.valid())
+							    {
+								    ErrorHandler(cb.lua_state(), std::move(pfr));
+							    }
+						    }
+					    }
+					);
+				}
+				else
+				{
+					auto it = m_keys.emplace(skey);
+					if (topLevel && skey[0] != '[')
+					{
+						// Only bind top-level non-integer keys
+						m_datamodel->constructor().BindCustomDataVariable(
+						    skey, Rml::DataVariable(this, const_cast<char*>(it.first->data()))
+						);
+					}
+				}
+			}
+		}
+	}
+
+	void SolLuaDataModelProxy::rebind(const sol::table& newTable)
+	{
+		RMLUI_ASSERT(m_dirty);
+
+		m_children.clear(); // Orphan existing children
+		m_table = newTable; // Update table
+		bind(false);        // Nested rebind
+
+		m_dirty = false;
 	}
 
 } // end namespace Rml::SolLua

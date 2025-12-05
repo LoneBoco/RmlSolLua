@@ -11,25 +11,37 @@
 
 namespace Rml::SolLua
 {
-	class SolLuaObjectDef;
 	class SolLuaDataModel;
 
-	/// Userdata that proxies any table in the model, recursively
-	struct SolLuaDataModelTableProxy
+	class SolLuaDataModelProxy final : public Rml::VariableDefinition
 	{
-		SolLuaDataModel* model = nullptr;
-		std::unique_ptr<SolLuaObjectDef> objectDef;
+	public:
+		SolLuaDataModelProxy(SolLuaDataModel* datamodel, sol::table table);
+		bool Get(void* ptr, Rml::Variant& variant) override;
+		bool Set(void* ptr, const Rml::Variant& variant) override;
+		int Size(void* ptr) override;
+		DataVariable Child(void* ptr, const Rml::DataAddressEntry& address) override;
+
+		sol::object get(const sol::object& key) const;
+		void set(const sol::object& key, sol::object value);
+
+		void bind(bool topLevel);
+		void rebind(const sol::table& newTable);
+
+	protected:
+		SolLuaDataModel* m_datamodel;
+		sol::table m_table;
 
 		// Children proxies for nested tables
-		std::unordered_map<std::string, SolLuaDataModelTableProxy> children;
+		std::unordered_map<std::string, SolLuaDataModelProxy> m_children;
 
 		// Store keys of non-table values in a set just to keep alive the strings
-		std::unordered_set<std::string> keys;
+		std::unordered_set<std::string> m_keys;
 
 		// Not string_view to avoid transient copy since Rml expects String&
-		const std::string* topLevelKey = nullptr;
+		const std::string* m_topLevelKey = nullptr;
 
-		bool dirty = false;
+		bool m_dirty = false;
 	};
 
 	class SolLuaDataModel
@@ -37,33 +49,12 @@ namespace Rml::SolLua
 	public:
 		SolLuaDataModel(const sol::table& model, const Rml::DataModelConstructor& constructor);
 
-		Rml::DataModelHandle modelHandle() const;
-
-		SolLuaDataModelTableProxy& topLevelProxy();
-		void rebindNestedTable(SolLuaDataModelTableProxy& nestedProxy, const sol::table& newTable);
+		Rml::DataModelConstructor constructor() const;
+		SolLuaDataModelProxy& topLevelProxy();
 
 	private:
-		void bindTable(SolLuaDataModelTableProxy& proxy, bool topLevel);
-
 		Rml::DataModelConstructor m_constructor;
-		SolLuaDataModelTableProxy m_topLevelProxy;
-	};
-
-	class SolLuaObjectDef final : public Rml::VariableDefinition
-	{
-	public:
-		SolLuaObjectDef(sol::table table);
-		bool Get(void* ptr, Rml::Variant& variant) override;
-		bool Set(void* ptr, const Rml::Variant& variant) override;
-		int Size(void* ptr) override;
-		DataVariable Child(void* ptr, const Rml::DataAddressEntry& address) override;
-
-		sol::table& table();
-
-		void setTable(sol::table table);
-
-	protected:
-		sol::table m_table;
+		SolLuaDataModelProxy m_topLevelProxy;
 	};
 
 } // end namespace Rml::SolLua
