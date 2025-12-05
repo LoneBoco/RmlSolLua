@@ -1,5 +1,3 @@
-#include <string>
-
 #include <RmlSolLua_private.h>
 #include SOLHPP
 
@@ -9,26 +7,25 @@ namespace Rml::SolLua
 {
 	namespace functions
 	{
-		static sol::object dataModelGet(SolLuaDataModel& self, const std::string& name, sol::this_state s)
+		static sol::object dataModelGet(SolLuaDataModelProxy& self, const sol::object& key)
 		{
-			return self.Table.get<sol::object>(name);
+			return self.get(key);
 		}
 
-		static void dataModelSet(SolLuaDataModel& self, const std::string& name, sol::object value, sol::this_state s)
+		static void
+		dataModelSet(SolLuaDataModelProxy& self, const sol::object& key, sol::object value)
 		{
-			self.Handle.DirtyVariable(name);
-			self.Table.set(name, value);
+			self.set(key, value);
 		}
 	} // namespace functions
 
 	void bind_datamodel(sol::state_view& lua)
 	{
 		// clang-format off
-		lua.new_usertype<SolLuaDataModel>("SolLuaDataModel", sol::no_constructor,
-			sol::meta_function::index, &functions::dataModelGet,
-			sol::meta_function::new_index, &functions::dataModelSet
+		lua.new_usertype<SolLuaDataModelProxy>("SolLuaDataModelProxy", sol::no_constructor,
+		    sol::meta_function::index, &functions::dataModelGet,
+		    sol::meta_function::new_index, &functions::dataModelSet
 		);
 		// clang-format on
 	}
-
 } // end namespace Rml::SolLua
