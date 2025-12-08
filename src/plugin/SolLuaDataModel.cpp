@@ -31,8 +31,29 @@ namespace Rml::SolLua
 
 		DataVariable MakeLiteralIntVariable(int value)
 		{
-			static LiteralIntDefinition literal_int_definition;
-			return DataVariable(&literal_int_definition, reinterpret_cast<void*>(static_cast<intptr_t>(value)));
+			static LiteralIntDefinition def;
+			return DataVariable(&def, reinterpret_cast<void*>(static_cast<intptr_t>(value)));
+		}
+
+		class NullDefinition final : public VariableDefinition
+		{
+		public:
+			NullDefinition()
+			    : VariableDefinition(DataVariableType::Scalar)
+			{
+			}
+
+			bool Get(void*, Variant& variant) override
+			{
+				variant.Clear();
+				return true;
+			}
+		};
+
+		DataVariable MakeNullVariable()
+		{
+			static NullDefinition def;
+			return DataVariable(&def, nullptr);
 		}
 
 	} // namespace
@@ -63,6 +84,13 @@ namespace Rml::SolLua
 
 	bool SolLuaDataModelProxy::Get(void* ptr, Rml::Variant& variant)
 	{
+		if (ptr == nullptr)
+		{
+			// TODO: alternatively, the table can be serialized to a string and returned
+			Rml::Log::Message(Rml::Log::LT_ERROR, "[LUA][ERROR] Trying to access a table as a scalar from VariableDefinition::Get");
+			return false;
+		}
+
 		sol::object obj;
 		auto* key = const_cast<const char*>(static_cast<char*>(ptr));
 		if (key[0] == '[')
@@ -73,7 +101,7 @@ namespace Rml::SolLua
 			RMLUI_ASSERT(result.ec == std::errc{} && "Rml failed to sanitize user input to be well-formed");
 			if (idx < 0 || idx >= m_table.size())
 			{
-				Rml::Log::Message(Rml::Log::LT_ERROR, "Data array index out of bounds.");
+				Rml::Log::Message(Rml::Log::LT_ERROR, "[LUA][ERROR] Data array index out of bounds");
 				return false;
 			}
 			obj = m_table[idx + 1]; // Lua is 1-based
@@ -121,6 +149,12 @@ namespace Rml::SolLua
 
 	bool SolLuaDataModelProxy::Set(void* ptr, const Rml::Variant& variant)
 	{
+		if (ptr == nullptr)
+		{
+			Rml::Log::Message(Rml::Log::LT_ERROR, "[LUA][ERROR] Trying to access a table as a scalar from VariableDefinition::Set");
+			return false;
+		}
+
 		auto* key = const_cast<const char*>(static_cast<char*>(ptr));
 		if (key[0] == '[')
 		{
@@ -130,7 +164,7 @@ namespace Rml::SolLua
 			RMLUI_ASSERT(result.ec == std::errc{} && "Rml failed to sanitize user input to be well-formed");
 			if (idx < 0 || idx >= m_table.size())
 			{
-				Rml::Log::Message(Rml::Log::LT_ERROR, "Data array index out of bounds.");
+				Rml::Log::Message(Rml::Log::LT_ERROR, "[LUA][ERROR] Data array index out of bounds");
 				return false;
 			}
 			sol::table_proxy obj = m_table[idx + 1]; // Lua is 1-based
@@ -146,22 +180,29 @@ namespace Rml::SolLua
 
 	int SolLuaDataModelProxy::Size(void* ptr)
 	{
-		SolLuaDataModelProxy& proxy = *static_cast<SolLuaDataModelProxy*>(ptr);
-		return static_cast<int>(proxy.m_table.size());
+		if (ptr != nullptr)
+		{
+			Rml::Log::Message(Rml::Log::LT_ERROR, "[LUA][ERROR] Trying to get size of a scalar");
+			return 0;
+		}
+		return static_cast<int>(m_table.size());
 	}
 
 	DataVariable SolLuaDataModelProxy::Child(void* ptr, const Rml::DataAddressEntry& address)
 	{
-		SolLuaDataModelProxy& proxy = *static_cast<SolLuaDataModelProxy*>(ptr);
+		if (ptr != nullptr)
+		{
+			Rml::Log::Message(Rml::Log::LT_ERROR, "[LUA][ERROR] Trying to access a sub element of a scalar");
+			return {};
+		}
 
 		std::string skey;
 		sol::object obj;
 		if (address.index != -1)
 		{
-
 			if (address.index < 0 || address.index >= m_table.size())
 			{
-				Rml::Log::Message(Rml::Log::LT_ERROR, "Data array index out of bounds.");
+				Rml::Log::Message(Rml::Log::LT_ERROR, "[LUA][ERROR] Data array index out of bounds");
 				return {};
 			}
 			// Access by index
@@ -176,19 +217,19 @@ namespace Rml::SolLua
 			}
 
 			skey = address.name;
-			obj = proxy.m_table[address.name];
+			obj = m_table[address.name];
 		}
 
 		if (obj.get_type() == sol::type::table)
 		{
-			auto it = proxy.m_children.find(skey);
-			RMLUI_ASSERT(it != proxy.m_children.end());
-			return {&it->second, &it->second};
+			auto it = m_children.find(skey);
+			RMLUI_ASSERT(it != m_children.end());
+			return {&it->second, nullptr};
 		}
 
-		auto it = proxy.m_keys.find(skey);
-		RMLUI_ASSERT(it != proxy.m_keys.end());
-		return {&proxy, const_cast<char*>(it->data())};
+		auto it = m_keys.find(skey);
+		RMLUI_ASSERT(it != m_keys.end());
+		return {this, const_cast<char*>(it->data())};
 	}
 
 	sol::object SolLuaDataModelProxy::get(const sol::object& key) const
@@ -229,7 +270,7 @@ namespace Rml::SolLua
 			else if (key.get_type() == sol::type::number)
 			{
 				const double number = key.as<double>() - 1;
-				const bool isInteger = !std::isfinite(number) && std::floor(number) == number;
+				const bool isInteger = std::isfinite(number) && std::floor(number) == number;
 				if (isInteger && number >= 0)
 				{
 					// Assign a pseudo-key for numeric indices
@@ -239,7 +280,8 @@ namespace Rml::SolLua
 			}
 			if (skey.empty())
 			{
-				Rml::Log::Message(Log::LT_ERROR, "Data model key other than non-empty string or non-negative integer is unsupported");
+				Rml::Log::Message(Log::LT_ERROR, "[LUA][ERROR] Data model key other than non-empty string or non-negative integer is unsupported");
+				return;
 			}
 
 			if (value.get_type() == sol::type::table)
@@ -252,7 +294,7 @@ namespace Rml::SolLua
 				{
 					// Only bind top-level non-integer keys
 					m_datamodel->constructor().BindCustomDataVariable(
-					    skey, Rml::DataVariable(&childProxyIt.first->second, &childProxyIt.first->second)
+					    skey, Rml::DataVariable(&childProxyIt.first->second, nullptr)
 					);
 				}
 			}
@@ -263,7 +305,7 @@ namespace Rml::SolLua
 					if (!topLevel)
 					{
 						Rml::Log::Message(
-						    Log::LT_WARNING, "Event callbacks are only allowed at the top level of a data model."
+						    Log::LT_WARNING, "[LUA][WARNING] Event callbacks are only allowed at the top level of a data model"
 						);
 						continue;
 					}
