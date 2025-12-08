@@ -35,27 +35,6 @@ namespace Rml::SolLua
 			return DataVariable(&def, reinterpret_cast<void*>(static_cast<intptr_t>(value)));
 		}
 
-		class NullDefinition final : public VariableDefinition
-		{
-		public:
-			NullDefinition()
-			    : VariableDefinition(DataVariableType::Scalar)
-			{
-			}
-
-			bool Get(void*, Variant& variant) override
-			{
-				variant.Clear();
-				return true;
-			}
-		};
-
-		DataVariable MakeNullVariable()
-		{
-			static NullDefinition def;
-			return DataVariable(&def, nullptr);
-		}
-
 	} // namespace
 
 	SolLuaDataModel::SolLuaDataModel(const sol::table& model, const Rml::DataModelConstructor& constructor)
