@@ -183,12 +183,6 @@ namespace Rml::SolLua
 		{
 			auto it = proxy.m_children.find(skey);
 			RMLUI_ASSERT(it != proxy.m_children.end());
-			if (it->second.m_dirty)
-			{
-				it->second.rebind(obj);
-			}
-
-			// Pass proxy as ptr to be used in `Child` calls further down the chain
 			return {&it->second, &it->second};
 		}
 
@@ -216,10 +210,10 @@ namespace Rml::SolLua
 
 		if (value.get_type() == sol::type::table)
 		{
-			// Also dirty nested table's proxy
+			// Rebind nested table's proxy
 			auto proxyTableIt = m_children.find(skey);
 			RMLUI_ASSERT(proxyTableIt != m_children.end());
-			proxyTableIt->second.m_dirty = true;
+			proxyTableIt->second.rebind(value);
 		}
 	}
 
@@ -234,14 +228,18 @@ namespace Rml::SolLua
 			}
 			else if (key.get_type() == sol::type::number)
 			{
-				// Assign a pseudo-key for numeric indices
-				// TODO: check if the number is an integer?
-				skey = std::format("[{}]", key.as<int>() - 1); // Lua is 1-based
+				const double number = key.as<double>() - 1;
+				const bool isInteger = !std::isfinite(number) && std::floor(number) == number;
+				if (isInteger && number >= 0)
+				{
+					// Assign a pseudo-key for numeric indices
+					// Assuming it fits into uint64_t to simplify logic
+					skey = std::format("[{}]", static_cast<std::uint64_t>(number)); // Lua is 1-based
+				}
 			}
-			else
+			if (skey.empty())
 			{
-				Rml::Log::Message(Log::LT_ERROR, "Data model key with type other than string or integer is unsupported");
-				return;
+				Rml::Log::Message(Log::LT_ERROR, "Data model key other than non-empty string or non-negative integer is unsupported");
 			}
 
 			if (value.get_type() == sol::type::table)
@@ -309,13 +307,9 @@ namespace Rml::SolLua
 
 	void SolLuaDataModelProxy::rebind(const sol::table& newTable)
 	{
-		RMLUI_ASSERT(m_dirty);
-
 		m_children.clear(); // Orphan existing children
 		m_table = newTable; // Update table
 		bind(false);        // Nested rebind
-
-		m_dirty = false;
 	}
 
 } // end namespace Rml::SolLua

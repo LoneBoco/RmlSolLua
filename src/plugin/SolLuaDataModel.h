@@ -40,8 +40,6 @@ namespace Rml::SolLua
 
 		// Not string_view to avoid transient copy since Rml expects String&
 		const std::string* m_topLevelKey = nullptr;
-
-		bool m_dirty = false;
 	};
 
 	class SolLuaDataModel
