@@ -79,11 +79,15 @@ if (DEFINED SOL_INCLUDE_DIR)
 endif()
 
 # RmlUI
-find_package(RmlUi CONFIG REQUIRED)
+if(NOT TARGET RmlUi::Core)
+    find_package(RmlUi CONFIG REQUIRED)
+endif()
 target_link_libraries(RmlSolLua PUBLIC RmlUi::Core)
 
 # Sol2
-find_package(sol2 CONFIG REQUIRED)
+if(NOT TARGET sol2)
+    find_package(sol2 CONFIG REQUIRED)
+endif()
 target_link_libraries(RmlSolLua PUBLIC sol2)
 
 # Try to find a Lua.
