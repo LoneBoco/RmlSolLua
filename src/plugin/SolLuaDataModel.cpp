@@ -202,12 +202,18 @@ namespace Rml::SolLua
 		if (obj.get_type() == sol::type::table)
 		{
 			auto it = m_children.find(skey);
+			// The assumption is that this can only happen if the table was there
+			// at the moment of rebind, hence it has to be in `m_children`.
 			RMLUI_ASSERT(it != m_children.end());
 			return {&it->second, nullptr};
 		}
 
 		auto it = m_keys.find(skey);
-		RMLUI_ASSERT(it != m_keys.end());
+		if (it == m_keys.end())
+		{
+			// Key is not in the proxy
+			return {};
+		}
 		return {this, const_cast<char*>(it->data())};
 	}
 
@@ -226,7 +232,6 @@ namespace Rml::SolLua
 	{
 		std::string skey = key.is<std::string>() ? key.as<std::string>() : std::format("[{}]", key.as<int>() - 1);
 		m_table.set(key, value);
-		m_datamodel->constructor().GetModelHandle().DirtyVariable(m_topLevelKey ? *m_topLevelKey : skey);
 
 		if (value.get_type() == sol::type::table)
 		{
@@ -235,6 +240,21 @@ namespace Rml::SolLua
 			RMLUI_ASSERT(proxyTableIt != m_children.end());
 			proxyTableIt->second.rebind(value);
 		}
+		else
+		{
+			if (!m_keys.contains(skey))
+			{
+				// Late binding - new key has been just added (only for nested tables)
+				// Technically, we could do the same+`BindCustomDataVariable` for a top-level table as well,
+				// but it seems to be unsupported by RmlUi itself as it continues to assume that it doesn't exist
+				if (m_topLevelKey != nullptr)
+				{
+					m_keys.emplace(skey);
+				}
+			}
+		}
+
+		m_datamodel->constructor().GetModelHandle().DirtyVariable(m_topLevelKey ? *m_topLevelKey : skey);
 	}
 
 	void SolLuaDataModelProxy::bind(bool topLevel)
@@ -292,8 +312,7 @@ namespace Rml::SolLua
 					m_datamodel->constructor().BindEventCallback(
 					    skey,
 					    [cb = sol::protected_function{value},
-					     state = sol::state_view{m_table.lua_state(
-					     )}](Rml::DataModelHandle, Rml::Event& event, const Rml::VariantList& varlist)
+					     state = sol::state_view{m_table.lua_state()}](Rml::DataModelHandle, Rml::Event& event, const Rml::VariantList& varlist)
 					    {
 						    if (cb.valid())
 						    {
