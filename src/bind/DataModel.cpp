@@ -12,8 +12,7 @@ namespace Rml::SolLua
 			return self.get(key);
 		}
 
-		static void
-		dataModelSet(SolLuaDataModelProxy& self, const sol::object& key, sol::object value)
+		static void dataModelSet(SolLuaDataModelProxy& self, const sol::object& key, sol::object value)
 		{
 			self.set(key, value);
 		}

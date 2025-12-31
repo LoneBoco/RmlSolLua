@@ -1,8 +1,18 @@
+#include <charconv>
+#include <cmath>
+#include <cstdint>
+#include <format>
+#include <string_view>
 #include <string>
+#include <system_error>
+#include <utility>
+#include <vector>
 
 #include <RmlSolLua_private.h>
 #include <RmlUi/Core.h>
+#include <RmlUi/Core/Debug.h>
 #include SOLHPP
+#include <sol/table_proxy.hpp>
 
 #include "SolLuaDataModel.h"
 
@@ -71,12 +81,12 @@ namespace Rml::SolLua
 		}
 
 		sol::object obj;
-		auto* key = const_cast<const char*>(static_cast<char*>(ptr));
-		if (key[0] == '[')
+		std::string_view key{ static_cast<const char*>(ptr) };
+		if (key.length() > 2 && key[0] == '[')
 		{
 			// Pseudo-key: access by index
 			int idx;
-			std::from_chars_result result = std::from_chars(key + 1, key + std::strlen(key) - 1, idx);
+			std::from_chars_result result = std::from_chars(key.data() + 1, key.data() + key.length() - 1, idx);
 			RMLUI_ASSERT(result.ec == std::errc{} && "Rml failed to sanitize user input to be well-formed");
 			if (idx < 0 || idx >= m_table.size())
 			{
@@ -134,12 +144,12 @@ namespace Rml::SolLua
 			return false;
 		}
 
-		auto* key = const_cast<const char*>(static_cast<char*>(ptr));
-		if (key[0] == '[')
+		std::string_view key{ static_cast<const char*>(ptr) };
+		if (key.length() > 2 && key[0] == '[')
 		{
 			// Pseudo-key: access by index
 			int idx;
-			std::from_chars_result result = std::from_chars(key + 1, key + std::strlen(key) - 1, idx);
+			std::from_chars_result result = std::from_chars(key.data() + 1, key.data() + key.length() - 1, idx);
 			RMLUI_ASSERT(result.ec == std::errc{} && "Rml failed to sanitize user input to be well-formed");
 			if (idx < 0 || idx >= m_table.size())
 			{
