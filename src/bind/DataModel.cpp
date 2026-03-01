@@ -16,6 +16,11 @@ namespace Rml::SolLua
 		{
 			self.set(key, value);
 		}
+
+		static sol::object dataModelLength(SolLuaDataModelProxy& self, sol::this_state state)
+		{
+			return sol::make_object(state, self.Size(nullptr));
+		}
 	} // namespace functions
 
 	void bind_datamodel(sol::state_view& lua)
@@ -23,7 +28,8 @@ namespace Rml::SolLua
 		// clang-format off
 		lua.new_usertype<SolLuaDataModelProxy>("SolLuaDataModelProxy", sol::no_constructor,
 		    sol::meta_function::index, &functions::dataModelGet,
-		    sol::meta_function::new_index, &functions::dataModelSet
+		    sol::meta_function::new_index, &functions::dataModelSet,
+			sol::meta_function::length, &functions::dataModelLength
 		);
 		// clang-format on
 	}
