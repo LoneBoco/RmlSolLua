@@ -245,10 +245,21 @@ namespace Rml::SolLua
 
 		if (value.get_type() == sol::type::table)
 		{
-			// Rebind nested table's proxy
-			auto proxyTableIt = m_children.find(skey);
-			RMLUI_ASSERT(proxyTableIt != m_children.end());
-			proxyTableIt->second.rebind(value);
+			const auto proxyTableIt = m_children.find(skey);
+			if (proxyTableIt == m_children.end() && skey[0] == '[' && m_topLevelKey != nullptr)
+			{
+				// New array element
+				auto childProxyIt = m_children.try_emplace(skey, m_datamodel, value.as<sol::table>());
+				RMLUI_ASSERT(childProxyIt.second);
+				childProxyIt.first->second.m_topLevelKey = m_topLevelKey;
+				childProxyIt.first->second.bind(false);
+			}
+			else
+			{
+				// Existing element - rebind nested table's proxy
+				RMLUI_ASSERT(proxyTableIt != m_children.end());
+				proxyTableIt->second.rebind(value);
+			}
 		}
 		else
 		{
