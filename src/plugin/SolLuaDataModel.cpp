@@ -81,12 +81,12 @@ namespace Rml::SolLua
 		}
 
 		sol::object obj;
-		std::string_view key{ static_cast<const char*>(ptr) };
-		if (key.length() > 2 && key[0] == '[')
+		auto* key = const_cast<const char*>(static_cast<char*>(ptr));
+		if (key[0] == '[')
 		{
 			// Pseudo-key: access by index
 			int idx;
-			std::from_chars_result result = std::from_chars(key.data() + 1, key.data() + key.length() - 1, idx);
+			std::from_chars_result result = std::from_chars(key + 1, key + std::strlen(key) - 1, idx);
 			RMLUI_ASSERT(result.ec == std::errc{} && "Rml failed to sanitize user input to be well-formed");
 			if (idx < 0 || idx >= m_table.size())
 			{
@@ -144,12 +144,12 @@ namespace Rml::SolLua
 			return false;
 		}
 
-		std::string_view key{ static_cast<const char*>(ptr) };
-		if (key.length() > 2 && key[0] == '[')
+		auto* key = const_cast<const char*>(static_cast<char*>(ptr));
+		if (key[0] == '[')
 		{
 			// Pseudo-key: access by index
 			int idx;
-			std::from_chars_result result = std::from_chars(key.data() + 1, key.data() + key.length() - 1, idx);
+			std::from_chars_result result = std::from_chars(key + 1, key + std::strlen(key) - 1, idx);
 			RMLUI_ASSERT(result.ec == std::errc{} && "Rml failed to sanitize user input to be well-formed");
 			if (idx < 0 || idx >= m_table.size())
 			{
