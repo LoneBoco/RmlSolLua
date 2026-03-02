@@ -21,6 +21,7 @@ namespace Rml::SolLua
 		bool Set(void* ptr, const Rml::Variant& variant) override;
 		int Size(void* ptr) override;
 		DataVariable Child(void* ptr, const Rml::DataAddressEntry& address) override;
+		StringList ReflectMemberNames() override;
 
 		sol::object get(const sol::object& key) const;
 		void set(const sol::object& key, sol::object value);
@@ -28,9 +29,11 @@ namespace Rml::SolLua
 		void bind(bool topLevel);
 		void rebind(const sol::table& newTable);
 
-	protected:
+	private:
 		SolLuaDataModel* m_datamodel;
 		sol::table m_table;
+
+		std::unique_ptr<Rml::VariableDefinition> m_selfAsScalar;
 
 		// Children proxies for nested tables
 		std::unordered_map<std::string, SolLuaDataModelProxy> m_children;

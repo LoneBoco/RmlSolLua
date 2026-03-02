@@ -2,8 +2,9 @@
 #include <cmath>
 #include <cstdint>
 #include <format>
-#include <string_view>
+#include <ranges>
 #include <string>
+#include <string_view>
 #include <system_error>
 #include <utility>
 #include <vector>
@@ -23,6 +24,22 @@ namespace Rml::SolLua
 {
 	namespace
 	{
+		// Proxy definition to return self as a scalar definition (for non-table keys)
+		class ScalarDefinitionProxy final : public VariableDefinition
+		{
+		public:
+			ScalarDefinitionProxy(SolLuaDataModelProxy* self)
+			    : VariableDefinition(DataVariableType::Scalar), m_self(self)
+			{
+			}
+
+			bool Get(void* ptr, Variant& variant) override
+			{
+				return m_self->Get(ptr, variant);
+			}
+
+			SolLuaDataModelProxy* m_self;
+		};
 
 		class LiteralIntDefinition final : public VariableDefinition
 		{
@@ -66,8 +83,8 @@ namespace Rml::SolLua
 
 	/// SolLuaDatamodelProxy
 	SolLuaDataModelProxy::SolLuaDataModelProxy(SolLuaDataModel* datamodel, sol::table table)
-	    : VariableDefinition(DataVariableType::Scalar),
-	      m_datamodel(datamodel), m_table(std::move(table))
+	    : VariableDefinition(DataVariableType::Struct),
+	      m_datamodel(datamodel), m_table(std::move(table)), m_selfAsScalar(std::make_unique<ScalarDefinitionProxy>(this))
 	{
 	}
 
@@ -189,6 +206,7 @@ namespace Rml::SolLua
 		sol::object obj;
 		if (address.index != -1)
 		{
+			// Table treated as array (e.g. data-for and co)
 			if (address.index < 0 || address.index >= m_table.size())
 			{
 				Rml::Log::Message(Rml::Log::LT_ERROR, "[LUA][ERROR] Data array index out of bounds");
@@ -197,6 +215,21 @@ namespace Rml::SolLua
 			// Access by index
 			skey = std::format("[{}]", address.index);
 			obj = m_table[address.index + 1]; // Lua is 1-based
+		}
+		else if (address.name.starts_with('['))
+		{
+			// Table treated as struct (e.g. via reflection)
+			RMLUI_ASSERT(address.name.ends_with(']'));
+			RMLUI_ASSERT(address.name.size() > 2);
+
+			const std::string_view indexStr(address.name.data() + 1, address.name.size() - 2);
+			std::int32_t index = -1;
+			[[maybe_unused]] auto [end, ec] = std::from_chars(indexStr.data(), indexStr.data() + indexStr.size(), index);
+			RMLUI_ASSERT(ec == std::errc{});
+			RMLUI_ASSERT(end == indexStr.data() + indexStr.size());
+
+			skey = address.name;
+			obj = m_table[index + 1]; // Lua is 1-based
 		}
 		else
 		{
@@ -224,7 +257,16 @@ namespace Rml::SolLua
 			// Key is not in the proxy
 			return {};
 		}
-		return {this, const_cast<char*>(it->data())};
+		return {m_selfAsScalar.get(), const_cast<char*>(it->data())};
+	}
+
+	StringList SolLuaDataModelProxy::ReflectMemberNames()
+	{
+		StringList names;
+		names.reserve(m_keys.size() + m_children.size());
+		names.append_range(m_keys);
+		names.append_range(m_children | std::views::keys);
+		return names;
 	}
 
 	sol::object SolLuaDataModelProxy::get(const sol::object& key) const
@@ -358,7 +400,7 @@ namespace Rml::SolLua
 					{
 						// Only bind top-level non-integer keys
 						m_datamodel->constructor().BindCustomDataVariable(
-						    skey, Rml::DataVariable(this, const_cast<char*>(it.first->data()))
+						    skey, Rml::DataVariable(m_selfAsScalar.get(), const_cast<char*>(it.first->data()))
 						);
 					}
 				}
