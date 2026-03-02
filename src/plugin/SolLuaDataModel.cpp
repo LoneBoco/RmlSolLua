@@ -62,6 +62,17 @@ namespace Rml::SolLua
 			return DataVariable(&def, reinterpret_cast<void*>(static_cast<intptr_t>(value)));
 		}
 
+		bool IsArrayIndex(std::string_view key)
+		{
+			return key.starts_with('[');
+		}
+
+		// @pre Key is a valid null-terminated string
+		bool IsArrayIndex(const char* key)
+		{
+			return key[0] == '[';
+		}
+
 	} // namespace
 
 	SolLuaDataModel::SolLuaDataModel(const sol::table& model, const Rml::DataModelConstructor& constructor)
@@ -99,7 +110,7 @@ namespace Rml::SolLua
 
 		sol::object obj;
 		auto* key = const_cast<const char*>(static_cast<char*>(ptr));
-		if (key[0] == '[')
+		if (IsArrayIndex(key))
 		{
 			// Pseudo-key: access by index
 			int idx;
@@ -162,7 +173,7 @@ namespace Rml::SolLua
 		}
 
 		auto* key = const_cast<const char*>(static_cast<char*>(ptr));
-		if (key[0] == '[')
+		if (IsArrayIndex(key))
 		{
 			// Pseudo-key: access by index
 			int idx;
@@ -216,7 +227,7 @@ namespace Rml::SolLua
 			skey = std::format("[{}]", address.index);
 			obj = m_table[address.index + 1]; // Lua is 1-based
 		}
-		else if (address.name.starts_with('['))
+		else if (IsArrayIndex(address.name))
 		{
 			// Table treated as struct (e.g. via reflection)
 			RMLUI_ASSERT(address.name.ends_with(']'));
@@ -288,7 +299,7 @@ namespace Rml::SolLua
 		if (value.get_type() == sol::type::table)
 		{
 			const auto proxyTableIt = m_children.find(skey);
-			if (proxyTableIt == m_children.end() && skey[0] == '[' && m_topLevelKey != nullptr)
+			if (proxyTableIt == m_children.end() && IsArrayIndex(skey) && m_topLevelKey != nullptr)
 			{
 				// New array element
 				auto childProxyIt = m_children.try_emplace(skey, m_datamodel, value.as<sol::table>());
@@ -352,7 +363,7 @@ namespace Rml::SolLua
 				RMLUI_ASSERT(childProxyIt.second);
 				childProxyIt.first->second.m_topLevelKey = m_topLevelKey ? m_topLevelKey : &childProxyIt.first->first;
 				childProxyIt.first->second.bind(false);
-				if (topLevel && skey[0] != '[')
+				if (topLevel && !IsArrayIndex(skey))
 				{
 					// Only bind top-level non-integer keys
 					m_datamodel->constructor().BindCustomDataVariable(
@@ -396,7 +407,7 @@ namespace Rml::SolLua
 				else
 				{
 					auto it = m_keys.emplace(skey);
-					if (topLevel && skey[0] != '[')
+					if (topLevel && !IsArrayIndex(skey))
 					{
 						// Only bind top-level non-integer keys
 						m_datamodel->constructor().BindCustomDataVariable(
