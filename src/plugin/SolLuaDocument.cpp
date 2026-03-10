@@ -53,7 +53,10 @@ namespace Rml::SolLua
 		if (!m_lua_env_identifier.empty())
 			m_environment[m_lua_env_identifier] = GetId();
 
-		m_state.safe_script_file(source_path, m_environment, ErrorHandler);
+		// Fix the path if a leading colon has been replaced with a pipe.
+		String fixed_path = StringUtilities::Replace(source_path, '|', ':');
+
+		m_state.safe_script_file(fixed_path, m_environment, ErrorHandler);
 	}
 
 	sol::protected_function_result SolLuaDocument::RunLuaScript(const Rml::String& script)
